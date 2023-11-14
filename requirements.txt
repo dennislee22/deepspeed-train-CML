@@ -1,0 +1,11 @@
+deepspeed
+transformers
+datasets
+torch==2.1.0
+accelerate
+evaluate
+ninja
+peft
+trl
+nvitop
+bpytop
