@@ -9,18 +9,22 @@ import mlflow
 base_model = "bloom-1b1"
 base_model_name = "bloom-1b1"
 merged_model = "merged_bloom-1b1"
-training_output = "train_dspeed_3w" # stores the checkpoints
+#base_model = "falcon-7b"
+#base_model_name = "falcon-7b"
+#merged_model = "merged_falcon-7b"
+training_output = "train_dspeed_2w" # stores the checkpoints
 dataset_name = "text-to-sql_dataset"
 split = "train[:10%]" # train the first 10% of the dataset
 device_map = "cuda:0" if torch.cuda.is_available() else "cpu"
+trainlogs = "trainlogs"
 
 # BitsAndBytesConfig config
-#bnb_config = BitsAndBytesConfig(
-#    load_in_4bit=True,
-#    bnb_4bit_use_double_quant=True,
-#    bnb_4bit_quant_type="nf4",
-#    bnb_4bit_compute_dtype="float16"
-#)
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype="float16"
+)
 
 #bnb_config = BitsAndBytesConfig(
 #    load_in_8bit=True,
@@ -47,7 +51,7 @@ dataset = load_dataset(dataset_name, split=split)
 #optimizer = torch.optim.Adam(model.parameters())
 #data = torch.utils.data.DataLoader(dataset, shuffle=True)
 
-#base_model = AutoModelForSeq2SeqLM.from_pretrained(base_model, quantization_config=bnb_config, use_cache = False, device_map=device_map)
+#base_model = AutoModelForCausalLM.from_pretrained(base_model, quantization_config=bnb_config, use_cache = False, device_map=device_map)
 base_model = AutoModelForCausalLM.from_pretrained(base_model, use_cache = False, device_map=device_map) #use_cache=true involves more memory
 
 tokenizer = AutoTokenizer.from_pretrained(base_model_name)
@@ -67,6 +71,7 @@ trainingArgs = TrainingArguments(
     #optim="adamw_bnb_8bit",
     logging_steps=5, #print status every x steps
     save_strategy="epoch",
+    logging_dir=trainlogs,
     #learning_rate=2e-4,
     #fp16=True, # Use mixed precision instead of 32-bit. Default=False
     #bf16=True, # Use mixed precision instead of 32-bit. Reduce memory by a fraction. Requires Ampere or higher NVIDIA. Default=False
@@ -102,7 +107,8 @@ trained_model = AutoPeftModelForCausalLM.from_pretrained(
 )
 
 # Merge LoRA adapter with the base model and save the merged model
-#lora_merged_model = trained_model.merge_and_unload()
-trained_model.cpu().save_pretrained(merged_model)
-#lora_merged_model.save_pretrained(merged_model)
+
+lora_merged_model = trained_model.merge_and_unload()
+#trained_model.cpu().save_pretrained(merged_model)
+lora_merged_model.save_pretrained(merged_model)
 tokenizer.save_pretrained(merged_model)
