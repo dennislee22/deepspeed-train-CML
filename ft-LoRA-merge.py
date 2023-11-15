@@ -60,6 +60,7 @@ tokenizer.padding_side = 'right'
 tokenizer.deprecation_warnings["Asking-to-pad-a-fast-tokenizer"] = True
 
 trainingArgs = TrainingArguments(
+    deepspeed = "/home/cdsw/dsconfig/zero2auto.json",
     output_dir=training_output,
     num_train_epochs=3,
     per_device_train_batch_size=1,
@@ -74,7 +75,7 @@ trainingArgs = TrainingArguments(
     logging_dir=trainlogs,
     #learning_rate=2e-4,
     #fp16=True, # Use mixed precision instead of 32-bit. Default=False
-    #bf16=True, # Use mixed precision instead of 32-bit. Reduce memory by a fraction. Requires Ampere or higher NVIDIA. Default=False
+    bf16=True, # Faster than fp16. Reduce memory by a fraction. Requires Ampere or higher NVIDIA. Default=False
     report_to=["tensorboard"],
     disable_tqdm=True
 )
