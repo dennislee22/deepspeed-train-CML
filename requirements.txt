@@ -1,11 +1,13 @@
 deepspeed
 transformers
+bitsandbytes
 datasets
-torch==2.1.0
 accelerate
+scipy
 evaluate
 ninja
 peft
 trl
 nvitop
 bpytop
+tensorboard
