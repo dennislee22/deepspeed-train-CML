@@ -1,4 +1,6 @@
-# deepspeed-CML
+# deepspeed Training in <img width="36" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38692491-f56b-4fc0-a40e-8412b35327b4"> CML 
+
+<img width="407" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/df7fb23c-8828-479c-9a5a-a49fa1969be0">
 
 ### Single Worker without DP/TP:
 
@@ -8,7 +10,7 @@ per_device_train_batch_size = 32
 ```
 
 - During Training
-<img width="971" alt="image" src="https://github.com/dennislee22/deepspeed-LLM-FT-CML/assets/35444414/b1e7bfd2-38af-4c5d-b724-539e2d17acc9">
+
 ```
 
 ```
