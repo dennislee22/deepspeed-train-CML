@@ -4,6 +4,8 @@
 
 ### Single Worker without DP/TP:
 
+<img width="975" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c9e64302-166e-43fa-b8f5-c08da758bb49">
+
 - Code snippet:
 ```
 per_device_train_batch_size = 32
