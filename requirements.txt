@@ -11,3 +11,5 @@ trl
 nvitop
 bpytop
 tensorboard
+nltk
+rouge_score
