@@ -2,6 +2,81 @@
 
 <img width="407" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/df7fb23c-8828-479c-9a5a-a49fa1969be0">
 
+## <a name="toc_0"></a>Table of Contents
+[//]: # (TOC)
+[1. Objective](#toc_0)<br>
+[2. Benchmark Score & Summary](#toc_1)<br>
+[3. Preparation](#toc_2)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.1. Build Custom Docker Image](#toc_3)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Dataset & Model](#toc_3)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.3. CML Session](#toc_4)<br>
+[4. Single node with 1 GPU](#toc_5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training & Result](#toc_6)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_7)<br>
+[5. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_8)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training & Result](#toc_9)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_10)<br>
+[6. deepspeed 2 nodes with 1 GPU each (Zero 3)](#toc_11)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training & Result](#toc_12)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_13)<br>
+
+### <a name="toc_0"></a>1. Objective
+
+1. To create a LLM that is capable of achieving an AI task with specific dataset, the traditional ML approach would need to train a model from the scratch. Study shows it would take nearly 300 years to train a GPT model using a single V100 GPU card. This excludes the iterative process to test, retrain and tune the model to achieve satisfactory results. This is where Parameter-Efficient Fine-tuning (PEFT) comes in handy. PEFT trains only a subset of the parameters with the defined dataset, thereby substantially decreasing the computational resources and time.
+2. The provided iPython codes in this repository serve as a comprehensive illustration of the complete lifecycle for fine-tuning a particular Transformers-based model using specific datasets. This includes merging LLM with the trained adapters, quantization, and, ultimately, conducting inferences with the correct prompt. The outcomes of these experiments are detailed in the following section. The target use case of the experiments is making use the Text-to-SQL dataset to train the model, enabling the translation of plain English into SQL query statements.<br>
+&nbsp;a. [ft-trl-train.ipynb](ft-trl-train.ipynb): Run the code cell-by-cell interactively to fine-tune the base model with local dataset using TRL (Transformer Reinforcement Learning) mechanism. Merge the trained adapters with the base model. Subsequently, perform model inference to validate the results.<br>
+&nbsp;b. [quantize_model.ipynb](ft-trl-train.ipynb): Quantize the model (post-training) in 8, or even 2 bits using `auto-gptq` library.<br>
+&nbsp;c. [infer_Qmodel.ipynb](ft-trl-train.ipynb): Run inference on the quantized model to validate the results.<br>
+&nbsp;d. [gradio_infer.ipynb](gradio_infer.ipynb): You may use this custom Gradio interface to compare the inference results between the base and fine-tuned model.<br>
+5. The experiments also showcase the post-quantization outcome. Quantization allows model to be loaded into VRAM with constrained capacity. `GPTQ` is a post-training method to transform the fine-tuned model into a smaller footprint. According to [🤗 leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard), quantized model is able to infer without significant results degradation based on the scoring standards such as MMLU and HellaSwag. `BitsAndBytes` (zero-shot) helps further by applying 8-bit or even 4-bit quantization to model in the VRAM to facilitate model training. 
+6. Experiments were carried out using `bloom`, `falcon` and `codegen2` models with 1B to 7B parameters. The idea is to find out the actual GPU memory consumption when carrying out specific task in the above PEFT fine-tuning lifecycle. Results are detailed in the following section. These results can also serve as the GPU buying guide to achieve a specific LLM use case.
+ 
+#### <a name="toc_1"></a>2. Summary & Benchmark Score
+
+- Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
+
+<img width="897" alt="image" src="https://github.com/dennislee22/FT-Merge-Quantize-Infer-CML/assets/35444414/c50dbbcc-41a5-4f51-a09d-ac27b21dcb58"><br>
+
+- Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
+
+&nbsp;&nbsp;a. Time taken to fine-tune different LLM with 10% of Text-to-SQL dataset (File size=20.7 MB):<br>
+
+| Model     | Fine-Tune Technique | Fine-Tune Duration | Inference Result     |
+| :---      |     :---:           |   ---:             | :---                 |
+| bloom-1b1  | No Quantization     | ~12 mins           | Good                |
+| bloom-7b1  | No Quantization    | OOM                | N/A                  |
+| bloom-7b1  | 4-bit BitsAndBytes  | ~83 mins          | Good                 |
+| falcon-7b  | No Quantization    | OOM                | N/A                  |
+| falcon-7b  | 8-bit BitsAndBytes  | ~65 mins          | Good                 |
+| codegen2-1B  | No Quantization    | ~12 mins         | Bad                  |
+
+OOM = Out-Of-Memory
+
+&nbsp;&nbsp;b. Time taken to quantize the fine-tuned (merged with PEFT adapters) model using `auto-GPTQ` technique:<br>
+
+| Model      | Quantization Technique| Quantization Duration | Inference Result  |
+| :---       |     :---:           |   ---:                  | :---              |
+| bloom-1b1  | auto-gptq 8-bit     | ~5 mins                 | Bad               |
+| bloom-7b1  | auto-gptq 8-bit     | ~35 mins                | Good              |
+| falcon-7b  | auto-gptq 8-bit     | ~22 mins                | Good              |
+
+&nbsp;&nbsp;c. Table below shows the amount of memory of a A100-PCIE-40GB GPU utilised during specific experiment stage with different models.
+
+### <a name="toc_2"></a>3. Preparation
+
+### <a name="toc_3"></a>3.1 Build Custom Docker Image
+
+- Build a Docker image locally (based on the CML image) and push it to the external docker registry, represented by Nexus repository in this example.
+
+```
+docker build -t dlee-deedspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-jupyter
+docker tag dlee-deedspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
+docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
+```
+
+- Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
+
+
 ### Single Worker without DP/TP:
 
 <img width="975" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c9e64302-166e-43fa-b8f5-c08da758bb49">
