@@ -10,6 +10,8 @@ peft
 trl
 nvitop
 bpytop
+protobuf
+oauthlib
 tensorboard
 nltk
 rouge_score
