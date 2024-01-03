@@ -64,7 +64,7 @@ OOM = Out-Of-Memory
 
 ### <a name="toc_2"></a>3. Preparation
 
-### <a name="toc_3"></a>3.1 Build Custom Docker Image
+#### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
 - Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example.
 
@@ -81,28 +81,28 @@ docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-wb
 docker tag dlee-deepspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 ```
-### <a name="toc_4"></a>3.2 Dataset & Model
+#### <a name="toc_4"></a>3.2 Dataset & Model
 
-### <a name="toc_5"></a>3.5 CML Session
+#### <a name="toc_5"></a>3.5 CML Session
 
 
 ### <a name="toc_6"></a>4. Single node with 1 GPU
 
-### <a name="toc_7"></a>4.1 Training Result
+#### <a name="toc_7"></a>4.1 Training Result
 
-### <a name="toc_8"></a>4.2 Inference
+#### <a name="toc_8"></a>4.2 Inference
 
 ### <a name="toc_9"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
 
-### <a name="toc_10"></a>4.1 Training Result
+#### <a name="toc_10"></a>4.1 Training Result
 
-### <a name="toc_11"></a>4.2 Inference
+#### <a name="toc_11"></a>4.2 Inference
 
 ### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 3)
 
-### <a name="toc_13"></a>4.1 Training Result
+#### <a name="toc_13"></a>4.1 Training Result
 
-### <a name="toc_14"></a>4.2 Inference
+#### <a name="toc_14"></a>4.2 Inference
 
 - Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
 
