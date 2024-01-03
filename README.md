@@ -8,17 +8,17 @@
 [2. Benchmark Score & Summary](#toc_1)<br>
 [3. Preparation](#toc_2)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.1. Build Custom Docker Image](#toc_3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Dataset & Model](#toc_3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.3. CML Session](#toc_4)<br>
-[4. Single node with 1 GPU](#toc_5)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training & Result](#toc_6)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_7)<br>
-[5. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_8)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training & Result](#toc_9)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_10)<br>
-[6. deepspeed 2 nodes with 1 GPU each (Zero 3)](#toc_11)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training & Result](#toc_12)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_13)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Dataset & Model](#toc_4)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.3. CML Session](#toc_5)<br>
+[4. Single node with 1 GPU](#toc_6)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result](#toc_7)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_8)<br>
+[5. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_9)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
+[6. deepspeed 2 nodes with 1 GPU each (Zero 3)](#toc_12)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_13)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_14)<br>
 
 ### <a name="toc_0"></a>1. Objective
 
@@ -43,7 +43,7 @@
 
 | Model     | Fine-Tune Technique | Fine-Tune Duration | Inference Result     |
 | :---      |     :---:           |   ---:             | :---                 |
-| bloom-1b1  | No Quantization     | ~12 mins           | Good                |
+| bloom-1b1  | w/o deepspeed    | ~12 mins           | Good                |
 | bloom-7b1  | No Quantization    | OOM                | N/A                  |
 | bloom-7b1  | 4-bit BitsAndBytes  | ~83 mins          | Good                 |
 | falcon-7b  | No Quantization    | OOM                | N/A                  |
@@ -66,41 +66,47 @@ OOM = Out-Of-Memory
 
 ### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image) and push it to the external docker registry, represented by Nexus repository in this example.
+- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example.
 
 ```
-docker build -t dlee-deedspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-jupyter
-docker tag dlee-deedspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
+docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-jupyter
+docker tag dlee-deepspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
+docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
+```
+
+- Build another Docker image locally (based on the CML image with Workbench notebook) and push it to the external docker registry.
+
+```
+docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-wb
+docker tag dlee-deepspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 ```
+### <a name="toc_4"></a>3.2 Dataset & Model
+
+### <a name="toc_5"></a>3.5 CML Session
+
+
+### <a name="toc_6"></a>4. Single node with 1 GPU
+
+### <a name="toc_7"></a>4.1 Training Result
+
+### <a name="toc_8"></a>4.2 Inference
+
+### <a name="toc_9"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
+
+### <a name="toc_10"></a>4.1 Training Result
+
+### <a name="toc_11"></a>4.2 Inference
+
+### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 3)
+
+### <a name="toc_13"></a>4.1 Training Result
+
+### <a name="toc_14"></a>4.2 Inference
 
 - Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
 
 
-### Single Worker without DP/TP:
 
-<img width="975" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c9e64302-166e-43fa-b8f5-c08da758bb49">
-
-- Code snippet:
-```
-per_device_train_batch_size = 32
-```
-
-- During Training
-
-```
-
-```
-
-- Code snippet:
-```
-per_device_train_batch_size = 1
-```
-
-- During Training
-
-```
-
-```
 
 
