@@ -101,6 +101,8 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 
 #### <a name="toc_7"></a>4.1 Training Result
 
+<img width="984" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ba4b6c6-a372-407c-b065-7bffb4bc49a7">
+
 #### <a name="toc_8"></a>4.2 Inference
 
 ### <a name="toc_9"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
