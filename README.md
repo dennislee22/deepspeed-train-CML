@@ -46,6 +46,8 @@ VRAM (training/fine-tuning) =<br>
  
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
+- In this experiment, `Batch size=32` is configured for fine-tuning/training the models. Although using higher batch size would increase the training speed, 32 is selected to do apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
+ 
 - Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
  ZeRO-3 Offload can exploit both GPU and CPU memory,
 
@@ -124,6 +126,16 @@ $ ln -s /usr/local/cuda-12.2 /usr/local/cuda
 $ ls -l /usr/local/cuda
 lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 ```
+- Install the Python packages.
+
+```
+pip install -r requirements.txt
+```
+
+- Verify the status of deepspeed required libraries.
+
+<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/abe5a96d-780c-4fe7-b8aa-f943317ec3ff">
+
 
 #### <a name="toc_5"></a>3.3 Create Tensorboard in CML Application
 
@@ -145,7 +157,7 @@ git-lfs clone
 
 ### <a name="toc_7"></a>4. Single node with 1 GPU without ZeRO
 
-- Batch size 32 is configured for training t5-small model (60 million parameters).
+
 ```
 !python textsql_train.py \
 --model_id 't5-small' \
