@@ -120,6 +120,9 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 {'train_runtime': 742.5369, 'train_samples_per_second': 227.686, 'train_steps_per_second': 7.119, 'train_loss': 0.16859441952772136, 'epoch': 3.0}
 ```
 
+- Tensorboard Profiler (Training + Validation Loss combined):
+<img width="1099" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
+
 #### <a name="toc_8"></a>4.2 Inference (t5-small)
 
 ```
