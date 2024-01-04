@@ -80,7 +80,7 @@ Installed CUDA version 12.2 does not match the version torch was compiled with 1
 
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example.
+- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, which is represented by Nexus repository in this example.
 - The image is installed with the required Nvidia packages. Specific CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
 - For inter-nodes training deployment, deepspeed uses launchers such as OpenMPI and PDSH (a variant of rsh) which are both installed in the docker image as well.
 
@@ -210,6 +210,54 @@ Inference took 1.03 seconds
 
 ### <a name="toc_11"></a>5. deepspeed 3 Nodes/pod with ZERO-1
 
+- Run [deepspeed-train.ipynb](deepspeed-train.ipynb) script to fine-tune the model using deepspeed technique. The first cell is designed to launch the necessary CML worker pods. The CML worker pods use the same image as the current CML session which has the necessary Nvidia software packages, pdsh/openMPI and openSSH installed. In this example, deepspeed uses pdsh with SSH protocol to run the training script in the remote worker pods.
+
+```
+from cml.workers_v1 import launch_workers
+import subprocess, socket, os, sys
+from subprocess import call 
+
+NUM_WORKERS = 3
+worker_cpu = 4
+worker_memory = 32
+worker_gpu = 1
+hostfile = "/home/cdsw/hostfile.txt"
+
+def display_file_content(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+        print(content)
+
+#preparing hostfile with pdsh/openMPI specific format
+def redirect_to_file(text):
+    file = open(hostfile, 'a')
+    file.write(text + " slots=1\n")
+    file.close
+    
+for i in range(NUM_WORKERS):
+    worker_cmd = "python worker_p.py"
+    print(f"Launch CML worker pod {i}...")
+    # worker0 runs a different script
+    if i == 0:
+        with open('/home/cdsw/hostfile.txt', 'w') as f_obj:
+            call(['python', 'master_p.py'], stdout=f_obj)
+    else:
+        launch_workers(name=f'CML Worker Pods {i}', n=1, cpu=worker_cpu, memory=worker_memory, nvidia_gpu = worker_gpu,  code="!"+worker_cmd )
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(("0.0.0.0", 6000))
+        s.listen(1)    
+        conn, addr = s.accept()
+        for i in range(2):
+            data = conn.recv(20)
+            if not data: break
+            string = str(data, encoding='utf-8')
+            redirect_to_file(string)
+            conn.send("Hello From Server!".encode())
+        conn.close()
+
+print("Content of hostfile:")
+display_file_content(hostfile)
+```
 ```
 Launch CML worker pod 0...
 Launch CML worker pod 1...
@@ -220,7 +268,7 @@ Content of hostfile:
 10.254.19.152 slots=1
 ```
 
-- Batch size 32 is configured for training t5-small model (60 million parameters).
+- Run the following cell to execute deepspeed training script. `Batch size = 32` is configured for training t5-small model (60 million parameters).
 ```
 !export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
 --launcher pdsh \
@@ -236,7 +284,7 @@ Content of hostfile:
 --deepspeed dsconfig/zero1profiler.json
 ```
 
-- DeepSpeed Flops Profiler:
+- DeepSpeed Flops Profiler (zprofiler_result.txt as defined in the dsconfig/zero1profiler.json file):
 ```
 -------------------------- DeepSpeed Flops Profiler --------------------------
 Profile Summary at step 2:
@@ -349,7 +397,7 @@ depth 6:
 
 #### <a name="toc_14"></a>5.3 Inference
 
-- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
+- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and check the results.
 ```
 Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
 Model Prediction: SELECT COUNT Nationalities FROM FROM table WHERE Players = New Jersey Devils
@@ -378,6 +426,7 @@ Inference took 1.02 seconds
 
 ### <a name="toc_17"></a>7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload
 
+- Run
 ```
 !export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
 --launcher pdsh \
@@ -400,7 +449,7 @@ Inference took 1.02 seconds
 
 #### <a name="toc_19"></a>7.2 Inference
 
-- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
+- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and check the results.
 ```
 Test Instruction: What college did Calvin McCarty play at?
 Model Prediction: SELECT College FROM table WHERE College = Calvin McCarty
