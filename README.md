@@ -47,7 +47,7 @@ VRAM (training/fine-tuning) =<br>
 - The target use case of the experiments is fine-tuning the model with Text-to-SQL dataset with/without ZeRO, enabling the translation of plain English into SQL query statements. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform.
 - The experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
-- Table below summarizes the benchmark result when running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
+- Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
 | Model     | Technique           | Total Node/Pod | Duration | Inference Result    | Memory (each Pod)  |
 | :---      |     :---:           |  :---:         |  ---:   |   :---:             |   :---:            |
