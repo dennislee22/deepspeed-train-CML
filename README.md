@@ -50,13 +50,13 @@ VRAM (training/fine-tuning) =<br>
 - Table below summarizes the benchmark result when running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
 | Model     | Technique           | Total Node/Pod | Duration | Inference Result    | Memory (each Pod)  |
-| :---      |     :---:           |  :---:         |  :---:   |   :---:             |   :---:            |
+| :---      |     :---:           |  :---:         |  ---:   |   :---:             |   :---:            |
 | t5-small  | w/o deepspeed       |     1          | ~742 secs | Good                |   3 GB             |
-| t5-large  | w/o deepspeed       |     1          | ~12 mins | Good                |   15 GB            |
+| t5-large  | w/o deepspeed       |     1          | ~ | Good                |   15 GB            |
 | t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs | Good                |   5 GB             |
-| t5-large  | deepspeed ZeRO-1    |     3          | ~12 mins | Good                |   13 GB            |
-| t5-large  | deepspeed ZeRO-1    |     2          | ~12 mins | Good                |   15 GB            |
-| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~12 mins | Good                |   9 GB             |
+| t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs | Good                |   13 GB            |
+| t5-large  | deepspeed ZeRO-1    |     2          |          | Good                |   15 GB            |
+| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~ | Good                |   9 GB             |
 
 #### Summary:
 - deepspeed `ZeRO-1` with 3 nodes/pods manage to reduce the VRAM consumption when training `t5-large` model.
@@ -422,7 +422,7 @@ Inference took 1.02 seconds
 
 ### <a name="toc_17"></a>7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload
 
-- Run
+- Training script is as follows:
 ```
 !export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
 --launcher pdsh \
