@@ -19,6 +19,7 @@ RUN apt-get install -y libaio-dev
 RUN apt-get install -y libcufft-12-2
 RUN apt-get install -y libcufft-dev-12-2
 RUN apt-get install -y pdsh
+RUN apt-get install -y cuda-profiler-api-12-2
 RUN apt-get install -y cuda-nvrtc-12-2
 RUN apt-get install -y cuda-nvrtc-dev-12-2
 RUN apt-get install -y cuda-nvcc-12-2
