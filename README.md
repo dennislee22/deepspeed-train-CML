@@ -13,10 +13,10 @@
 [4. Single node with 1 GPU](#toc_6)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result](#toc_7)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_8)<br>
-[5. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_9)<br>
+[5. deepspeed 2 nodes with 1 GPU each (Zero 1)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
-[6. deepspeed 2 nodes with 1 GPU each (Zero 3)](#toc_12)<br>
+[6. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_12)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_13)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_14)<br>
 
@@ -106,13 +106,135 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 
 #### <a name="toc_8"></a>4.2 Inference
 
-### <a name="toc_9"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
+### <a name="toc_9"></a>4. deepspeed 3 nodes with 1 GPU each (Zero 1)
+
+- Batch size 32 is configured for training t5-small model (60 million parameters).
+```
+!export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
+--launcher pdsh \
+--num_nodes 3 \
+--num_gpus 1 \
+--master_addr $CDSW_IP_ADDRESS \
+--ssh_port 2222 textsql_train.py \
+--model_id 't5-small' \
+--outputdir ds-zero1-t5small \
+--epochs 3 \
+--per_device_train_batch_size 32 \
+--per_device_eval_batch_size 32 \
+--deepspeed dsconfig/zero1profiler.json
+```
+
+- DeepSpeed Flops Profiler:
+```
+-------------------------- DeepSpeed Flops Profiler --------------------------
+Profile Summary at step 2:
+Notations:
+data parallel size (dp_size), model parallel size(mp_size),
+number of parameters (params), number of multiply-accumulate operations(MACs),
+number of floating-point operations (flops), floating-point operations per second (FLOPS),
+fwd latency (forward propagation latency), bwd latency (backward propagation latency),
+step (weights update latency), iter latency (sum of fwd, bwd and step latency)
+
+world size:                                                             3       
+data parallel size:                                                     3       
+model parallel size:                                                    1       
+batch size per GPU:                                                     32      
+params per GPU:                                                         60.51 M 
+params of model = params per GPU * mp_size:                             60.51 M 
+fwd MACs per GPU:                                                       191.26 GMACs
+fwd flops per GPU:                                                      382.64 G
+fwd flops of model = fwd flops per GPU * mp_size:                       382.64 G
+fwd latency:                                                            60 ms   
+fwd FLOPS per GPU = fwd flops per GPU / fwd latency:                    6.38 TFLOPS
+bwd latency:                                                            287.7 ms
+bwd FLOPS per GPU = 2 * fwd flops per GPU / bwd latency:                2.66 TFLOPS
+fwd+bwd FLOPS per GPU = 3 * fwd flops per GPU / (fwd+bwd latency):      3.3 TFLOPS
+step latency:                                                           139.91 ms
+iter latency:                                                           487.61 ms
+FLOPS per GPU = 3 * fwd flops per GPU / iter latency:                   2.35 TFLOPS
+samples/second:                                                         196.88  
+
+----------------------------- Aggregated Profile per GPU -----------------------------
+Top 1 modules in terms of params, MACs or fwd latency at different model depths:
+depth 0:
+    params      - {'T5ForConditionalGeneration': '60.51 M'}
+    MACs        - {'T5ForConditionalGeneration': '191.26 GMACs'}
+    fwd latency - {'T5ForConditionalGeneration': '59.82 ms'}
+depth 1:
+    params      - {'T5Stack': '76.96 M'}
+    MACs        - {'T5Stack': '140.73 GMACs'}
+    fwd latency - {'T5Stack': '52.58 ms'}
+depth 2:
+    params      - {'ModuleList': '44.06 M'}
+    MACs        - {'ModuleList': '140.73 GMACs'}
+    fwd latency - {'ModuleList': '49.96 ms'}
+depth 3:
+    params      - {'T5Block': '44.06 M'}
+    MACs        - {'T5Block': '140.73 GMACs'}
+    fwd latency - {'T5Block': '49.96 ms'}
+depth 4:
+    params      - {'ModuleList': '44.06 M'}
+    MACs        - {'ModuleList': '140.73 GMACs'}
+    fwd latency - {'ModuleList': '48.48 ms'}
+depth 5:
+    params      - {'T5LayerFF': '25.17 M'}
+    MACs        - {'T5LayerFF': '77.31 GMACs'}
+    fwd latency - {'T5LayerSelfAttention': '20.37 ms'}
+depth 6:
+    params      - {'T5DenseActDense': '25.17 M'}
+    MACs        - {'T5DenseActDense': '77.31 GMACs'}
+    fwd latency - {'T5Attention': '22.82 ms'}
+```
 
 #### <a name="toc_10"></a>4.1 Training Result
 
+- All 3 worker nodes are consuming the same GPU memory utilization rate persistently at 5GB:
+<img width="1004" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/939a0d56-87e1-4388-bd60-363bff884357">
+
+- Time taken by each worker node to train the model:
+
+```
+10.254.21.77: {'train_runtime': 922.0487, 'train_samples_per_second': 183.358, 'train_steps_per_second': 1.913, 'train_loss': 0.23240086172713714, 'epoch': 3.0}
+10.254.19.151: {'train_runtime': 922.1271, 'train_samples_per_second': 183.342, 'train_steps_per_second': 1.913, 'train_loss': 0.23220197197531356, 'epoch': 3.0}
+10.254.18.216: {'train_runtime': 920.7942, 'train_samples_per_second': 183.608, 'train_steps_per_second': 1.916, 'train_loss': 0.2323370931370188, 'epoch': 3.0}
+```
+
+- Tensorboard profiler result:
+<img width="1100" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/75680608-acbe-4beb-b5c8-16c8dd1ed376">
+  
+
 #### <a name="toc_11"></a>4.2 Inference
 
-### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 3)
+```
+Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
+Model Prediction: SELECT COUNT Nationalities FROM FROM table WHERE Players = New Jersey Devils
+Expected Answer: SELECT COUNT Nationality FROM table WHERE NHL team = New Jersey Devils
+=================================
+
+Test Instruction: What is the nationality of the player from Vancouver Canucks?
+Model Prediction: SELECT Nationality FROM table WHERE Player = Vancouver Canucks
+Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canucks
+=================================
+
+Test Instruction: When were the ships launched that were laid down on september 1, 1964?
+Model Prediction: SELECT Date FROM table WHERE Launched = september 1, 1964
+Expected Answer: SELECT Launched FROM table WHERE Laid down = September 1, 1964
+=================================
+
+Test Instruction: List the # for ships commissioned on september 30, 1967.
+Model Prediction: SELECT # FROM table WHERE Ships commissioned FROM table WHERE Ships commissioned = september 30, 1967
+Expected Answer: SELECT # FROM table WHERE Commissioned = September 30, 1967
+=================================
+
+Test Instruction:  What could a spanish coronel be addressed as in the commonwealth military?
+Model Prediction: SELECT AVG Spanish Coronel FROM table WHERE Commonwealth Military = Commonwealth
+Expected Answer: SELECT Commonwealth equivalent FROM table WHERE Rank in Spanish = Coronel
+=================================
+
+Inference took 1.46 seconds
+```
+
+### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
 
 #### <a name="toc_13"></a>4.1 Training Result
 
