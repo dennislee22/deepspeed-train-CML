@@ -378,6 +378,22 @@ Inference took 1.02 seconds
 
 ### <a name="toc_17"></a>7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload
 
+```
+!export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
+--launcher pdsh \
+--num_nodes 3 \
+--num_gpus 1 \
+--master_addr $CDSW_IP_ADDRESS \
+--ssh_port 2222 textsql_train.py \
+--model_id 't5-large' \
+--outputdir ds-train-zero3-large \
+--epochs 3 \
+--gradient_checkpointing False \
+--per_device_train_batch_size 32 \
+--per_device_eval_batch_size 32 \
+--deepspeed dsconfig/zero3profiler.json
+```
+
 #### <a name="toc_18"></a>7.1 Training Result with ZeRO-3 Offload (t5-large)
 
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
@@ -386,17 +402,22 @@ Inference took 1.02 seconds
 
 - Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
 ```
-Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
-Model Prediction: SELECT US air force FROM table WHERE Pilot Officer = commonwealth
-Expected Answer: SELECT US Air Force equivalent FROM table WHERE Commonwealth equivalent = Pilot Officer
+Test Instruction: What college did Calvin McCarty play at?
+Model Prediction: SELECT College FROM table WHERE College = Calvin McCarty
+Expected Answer: SELECT College FROM table WHERE Player = Calvin McCarty
 =================================
 
-Test Instruction: what is the total number of total w–l where doubles w–l is 11–11
-Model Prediction: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
-Expected Answer: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
+Test Instruction: What is the composition at Valles lava dome?
+Model Prediction: SELECT composition FROM table WHERE composition = Valles Lava dome
+Expected Answer: SELECT Composition FROM table WHERE Name of lava dome = Valles lava dome
 =================================
 
-Inference took 1.03 seconds
+Test Instruction: What song has a length of 3:05?
+Model Prediction: SELECT Song FROM table WHERE Duration = 3:05
+Expected Answer: SELECT Song FROM table WHERE Length = 3:05
+=================================
+
+Inference took 1.06 seconds
 ```
 
 
