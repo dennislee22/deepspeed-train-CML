@@ -31,7 +31,7 @@
 - In general, the major components that will be loaded into the VRAM during LLM training process are as follows.
 
 ```
-VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activation 
+VRAM (training/fine-tuning) = Model Parameters + Optimizer + Gradient + Activation 
 ```
 
 - For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
