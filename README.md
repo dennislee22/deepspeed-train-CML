@@ -123,7 +123,11 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 - Tensorboard Profiler (Training + Validation Loss combined):
 <img width="1099" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
 
-#### <a name="toc_8"></a>4.2 Inference (t5-small)
+#### <a name="toc_8"></a>4.1 Training Result (t5-large)
+
+<img width="1001" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148">
+
+#### <a name="toc_9"></a>4.2 Inference
 
 ```
 Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
@@ -231,7 +235,7 @@ depth 6:
   0%|          | 0/1764 [00:00<?, ?it/s]/home/cdsw/.local/lib/python3.10/site-packages/deepspeed/runtime/zero/stage_1_and_2.py:1652: UserWarning: The torch.cuda.*DtypeTensor constructors are no longer recommended. It's best to use methods such as torch.tensor(data, dtype=*, device='cuda') to create tensors. (Triggered internally at ../torch/csrc/tensor/python_tensor.cpp:83.)
 ```
 
-- All 3 worker nodes are consuming the same GPU memory utilization rate persistently at 5GB:
+- All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~5GB:
 <img width="1004" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/939a0d56-87e1-4388-bd60-363bff884357">
 
 - Time taken by each worker node to complete the training:
@@ -243,9 +247,14 @@ depth 6:
 
 - Tensorboard profiler result:
 <img width="1100" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/75680608-acbe-4beb-b5c8-16c8dd1ed376">
-  
 
-#### <a name="toc_11"></a>4.2 Inference (t5-small)
+#### <a name="toc_10"></a>4.2 Training Result (t5-large)
+
+- All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~13GB:
+<img width="1002" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/97f63ade-170e-47d6-8c0d-54a613e833ac">
+
+
+#### <a name="toc_11"></a>4.3 Inference
 
 ```
 Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
@@ -260,9 +269,11 @@ Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canuck
 Inference took 1.02 seconds
 ```
 
-### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
+### <a name="toc_12"></a>4. deepspeed 3 nodes with ZERO-1 (t5-large)
 
 #### <a name="toc_13"></a>4.1 Training Result
+
+<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/ec48a6fc-9962-48ee-b372-4fe31a7975ee">
 
 #### <a name="toc_14"></a>4.2 Inference
 
