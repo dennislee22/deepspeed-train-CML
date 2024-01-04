@@ -30,7 +30,7 @@ Memory = Model Parameters + Optimiser + Gradient + Activation
 
 2. For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
 
-Memory = (4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + <img width="363" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
+<p><span style="font-size:0.8em">Memory = (4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </span></p><img width="363" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
 3. Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So the question is how to train a bigger model beyond 7B parameters with 40GB GPU cards. Techniques include:
 &nbsp;a.Pipeline Par
@@ -40,8 +40,8 @@ Memory = (4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/p
 &nbsp;b. [quantize_model.ipynb](ft-trl-train.ipynb): Quantize the model (post-training) in 8, or even 2 bits using `auto-gptq` library.<br>
 &nbsp;c. [infer_Qmodel.ipynb](ft-trl-train.ipynb): Run inference on the quantized model to validate the results.<br>
 &nbsp;d. [gradio_infer.ipynb](gradio_infer.ipynb): You may use this custom Gradio interface to compare the inference results between the base and fine-tuned model.<br>
-7. The experiments also showcase the post-quantization outcome. Quantization allows model to be loaded into VRAM with constrained capacity. `GPTQ` is a post-training method to transform the fine-tuned model into a smaller footprint. According to [🤗 leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard), quantized model is able to infer without significant results degradation based on the scoring standards such as MMLU and HellaSwag. `BitsAndBytes` (zero-shot) helps further by applying 8-bit or even 4-bit quantization to model in the VRAM to facilitate model training. 
-8. Experiments were carried out using `bloom`, `falcon` and `codegen2` models with 1B to 7B parameters. The idea is to find out the actual GPU memory consumption when carrying out specific task in the above PEFT fine-tuning lifecycle. Results are detailed in the following section. These results can also serve as the GPU buying guide to achieve a specific LLM use case.
+
+8. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively. Results are detailed in the following section. 
  
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
@@ -78,7 +78,7 @@ OOM = Out-Of-Memory
 
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example.
+- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example. For reference, CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
 
 ```
 docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-jupyter
@@ -285,11 +285,17 @@ Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canuck
 Inference took 1.02 seconds
 ```
 
-### <a name="toc_12"></a>4. deepspeed 3 nodes with ZERO-1 (t5-large)
+### <a name="toc_12"></a>4. deepspeed 2 nodes with ZERO-1 (t5-large)
 
 #### <a name="toc_13"></a>4.1 Training Result
 
-<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/ec48a6fc-9962-48ee-b372-4fe31a7975ee">
+<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4a510646-beea-47e4-9850-92f8fe8fdd8a">
+
+- With batch size of 32, deepspeed splits 5286 training steps into 2643 per epoch for each worker.
+```
+  0%|          | 0/2643 [00:00<?, ?it/s]
+  0%|          | 0/2643 [00:00<?, ?it/s]
+```
 
 #### <a name="toc_14"></a>4.2 Inference
 
