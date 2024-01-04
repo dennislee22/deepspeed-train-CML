@@ -27,26 +27,22 @@
 
 ### <a name="toc_0"></a>1. Objective
 
-1. When fine-tuning/training a LLM, insufficient VRAM is a major constraint. Major components that will be loaded into the VRAM during training process are:
+- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. General-purpose RAM and VRAM are different. It's not easy to design GPU with abundant memory because what is very hard is to create memory that provides both high capacity and high speed in the performance-intensive GPU architecture.
+- In general, major components that will be loaded into the VRAM during LLM training process are as follows.
 
 ```
 VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activation 
 ```
 
-2. For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
+- For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
 
 VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
-3. Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. Techniques include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP). This article focuses on **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique that shard the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised in DP). ZeRO allows fitting huge LLM into the GPUs with restricted memory.
+- Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. Techniques that are available today include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP).
+- This article focuses on **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique that is capable of sharding the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised in DP). In other words, **ZeRO allows fitting huge LLM into the GPUs with restricted memory, both intra-node and inter-node.**
 
-6. The provided iPython codes in this repository serve as a comprehensive illustration of the complete lifecycle for fine-tuning a particular Transformers-based model using specific datasets. This includes merging LLM with the trained adapters, quantization, and, ultimately, conducting inferences with the correct prompt. The outcomes of these experiments are detailed in the following section. The target use case of the experiments is making use the Text-to-SQL dataset to train the model, enabling the translation of plain English into SQL query statements.<br>
-&nbsp;a. [ft-trl-train.ipynb](ft-trl-train.ipynb): Run the code cell-by-cell interactively to fine-tune the base model with local dataset using TRL (Transformer Reinforcement Learning) mechanism. Merge the trained adapters with the base model. Subsequently, perform model inference to validate the results.<br>
-&nbsp;b. [quantize_model.ipynb](ft-trl-train.ipynb): Quantize the model (post-training) in 8, or even 2 bits using `auto-gptq` library.<br>
-&nbsp;c. [infer_Qmodel.ipynb](ft-trl-train.ipynb): Run inference on the quantized model to validate the results.<br>
-&nbsp;d. [gradio_infer.ipynb](gradio_infer.ipynb): You may use this custom Gradio interface to compare the inference results between the base and fine-tuned model.<br>
-
-8. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform. Results are detailed in the following section. 
+- The target use case of the experiments is fine-tuning the model with Text-to-SQL dataset with/without ZeRO, enabling the translation of plain English into SQL query statements. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform. Results are detailed in the following section. 
  
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
@@ -66,13 +62,21 @@ VRAM (training/fine-tuning) =<br>
 | falcon-7b  | 8-bit BitsAndBytes  | ~65 mins          | Good                 |
 | codegen2-1B  | No Quantization    | ~12 mins         | Bad                  |
 
-OOM = Out-Of-Memory
+<sub>OOM = Out-Of-Memory</sub>
 
 ### <a name="toc_2"></a>3. Preparation
 
+- PyTorch 2.1.2 requires CUDA12.1 version. This article uses docker image installed with [Nvida CUDA nvcc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html) version 12.2 for fixing some other incompatibilities.  
+<img width="425" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/d739357e-1421-439d-9395-2bbdf03bbd57">
+
+- As a reference, the outcome of the experiments shows that CUDA nvcc 12.2 can be used as reported in the following training log.
+```
+Installed CUDA version 12.2 does not match the version torch was compiled with 12.1 but since the APIs are compatible, accepting this combination
+```
+
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example. For reference, CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
+- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example. Specific CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
 
 ```
 docker build -t dlee-deepspeed:2024.1.4 . -f deepspeed-pdsh-mpi-nvcc-jupyter
@@ -90,11 +94,11 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 
 - Register the new image in CML.
 
-<img width="1377" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779">
 
 - Verify that the image has been registered succesfully.
 
-<img width="694" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192">
+<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192">
 
 #### <a name="toc_4"></a>3.2 Create CML Session
 
