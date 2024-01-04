@@ -8,11 +8,13 @@
 [2. Benchmark Score & Summary](#toc_1)<br>
 [3. Preparation](#toc_2)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.1. Build Custom Docker Image](#toc_3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Dataset & Model](#toc_4)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.3. CML Session](#toc_5)<br>
-[4. Single node with 1 GPU](#toc_6)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result](#toc_7)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_8)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Create Tensorboard in CML Application](#toc_4)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.3. Create CML Session](#toc_5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.4. Prepare Dataset & Model](#toc_6)<br>
+[4. Single node with 1 GPU without ZeRO](#toc_7)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result (t5-small)](#toc_8)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Training Result (t5-large)](#toc_9)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.3. Inference](#toc_10)<br>
 [5. deepspeed 3 nodes with 1 GPU each (ZeRO 1)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
@@ -119,7 +121,7 @@ $ ls -l /usr/local/cuda
 lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 ```
 
-#### <a name="toc_5"></a>3.3 Create Tensorboard dashboard in CML Application
+#### <a name="toc_5"></a>3.3 Create Tensorboard in CML Application
 
 - Create Tensorboard in the CML application
 <img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
@@ -128,11 +130,16 @@ lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 <img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af">
 
 
-#### <a name="toc_6"></a>3.4 Dataset & Model
+#### <a name="toc_6"></a>3.4 Prepare Dataset & Model
 
+- In the CML session, run the [prep_dataset.ipynb](prep_dataset.ipynb) to prepare/tokenize the wikiSQL dataset prior to fine-tuning the model.
+- In the CML session, you may opt to clone the LFS model in advance.
 
+```
+git-lfs clone
+```
 
-### <a name="toc_7"></a>4. Single node with 1 GPU (t5-small)
+### <a name="toc_7"></a>4. Single node with 1 GPU without ZeRO
 
 - Batch size 32 is configured for training t5-small model (60 million parameters).
 ```
@@ -145,7 +152,7 @@ lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 --gradient_checkpointing False
 ```
 
-#### <a name="toc_7"></a>4.1 Training Result (t5-small)
+#### <a name="toc_8"></a>4.1 Training Result (t5-small)
 
 <img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4">
 
@@ -157,11 +164,11 @@ lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 - Tensorboard Profiler (Training + Validation Loss combined):
 <img width="1099" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
 
-#### <a name="toc_8"></a>4.1 Training Result (t5-large)
+#### <a name="toc_9"></a>4.1 Training Result (t5-large)
 
 <img width="1001" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148">
 
-#### <a name="toc_9"></a>4.2 Inference
+#### <a name="toc_10"></a>4.2 Inference
 
 ```
 Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
