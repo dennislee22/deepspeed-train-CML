@@ -67,16 +67,6 @@ VRAM (training/fine-tuning) =<br>
 
 OOM = Out-Of-Memory
 
-&nbsp;&nbsp;b. Time taken to quantize the fine-tuned (merged with PEFT adapters) model using `auto-GPTQ` technique:<br>
-
-| Model      | Quantization Technique| Quantization Duration | Inference Result  |
-| :---       |     :---:           |   ---:                  | :---              |
-| bloom-1b1  | auto-gptq 8-bit     | ~5 mins                 | Bad               |
-| bloom-7b1  | auto-gptq 8-bit     | ~35 mins                | Good              |
-| falcon-7b  | auto-gptq 8-bit     | ~22 mins                | Good              |
-
-&nbsp;&nbsp;c. Table below shows the amount of memory of a A100-PCIE-40GB GPU utilised during specific experiment stage with different models.
-
 ### <a name="toc_2"></a>3. Preparation
 
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
@@ -97,14 +87,21 @@ docker tag dlee-deepspeed:2024.1.4 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-
 docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 ```
 
+- Register the new image in CML.
+
 <img width="1377" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779">
+
+- Verify that the image has been registered succesfully.
 
 <img width="694" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192">
 
+#### <a name="toc_4"></a>3.2 Create CML Session
 
-#### <a name="toc_4"></a>3.2 Dataset & Model
+- Create a new CML project with Python 3.10 and GPU variant.
 
-#### <a name="toc_5"></a>3.5 CML Session
+- Add the newly registered image in the CML project.
+
+<img width="1422" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/a88ca709-a10b-43f1-bd30-b9f6786bafbc">
 
 <img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d">
 
@@ -115,7 +112,20 @@ $ ls -l /usr/local/cuda
 lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 ```
 
-### <a name="toc_6"></a>4. Single node with 1 GPU (t5-small)
+#### <a name="toc_5"></a>3.3 Create Tensorboard dashboard in CML Application
+
+- Create Tensorboard in the CML application
+<img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
+
+- Upon successful creation, browse the Tensorboard website.
+<img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af">
+
+
+#### <a name="toc_6"></a>3.4 Dataset & Model
+
+
+
+### <a name="toc_7"></a>4. Single node with 1 GPU (t5-small)
 
 - Batch size 32 is configured for training t5-small model (60 million parameters).
 ```
