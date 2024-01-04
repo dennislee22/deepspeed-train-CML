@@ -205,7 +205,7 @@ Expected Answer: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–
 Inference took 1.03 seconds
 ```
 
-### <a name="toc_11"></a>5. deepspeed 3 Nodes/pod with ZERO-1
+### <a name="toc_11"></a>5. deepspeed 3 Nodes/Pods with ZeRO-1
 
 - Run [deepspeed-train.ipynb](deepspeed-train.ipynb) script to fine-tune the model using deepspeed technique. The first cell is designed to launch the necessary CML worker pods. The CML worker pods use the same image as the current CML session which has the necessary Nvidia software packages, pdsh/openMPI and openSSH installed. In this example, deepspeed uses pdsh with SSH protocol to run the training script in the remote worker pods.
 
