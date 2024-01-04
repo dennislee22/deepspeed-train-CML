@@ -141,10 +141,10 @@ pip install -r requirements.txt
 
 - Tensorboard is deployed to monitor the training/validation loss. The training script will report to Tensorboard.
 - Create Tensorboard in the CML application
-<img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831"><br>
+<img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
 
 - Upon successful creation, browse the Tensorboard website.
-<img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af"><br>
+<img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af">
 
 
 #### <a name="toc_6"></a>3.4 Prepare Dataset & Model
