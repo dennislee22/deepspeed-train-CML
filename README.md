@@ -45,7 +45,7 @@ VRAM (training/fine-tuning) =<br>
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
 - The target use case of the experiments is fine-tuning the model with Text-to-SQL dataset with/without ZeRO, enabling the translation of plain English into SQL query statements. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform.
-- The experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
+- The experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome in terms of speed and VRAM utilization rate with/without ZeRO technique in place.
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
 - Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
@@ -63,7 +63,7 @@ VRAM (training/fine-tuning) =<br>
 -  When training LLM in the multi-nodes landscape, the speed is often bottlenecked by network communication overhead (both physical underlay and virtual overlay network) and GPU-CPU-GPU transition process. This can be overcome by resorting to compelling options such as SR-IOV and Infiniband technology. Here's the [reference](https://docs.nvidia.com/networking/display/public/sol/rdg+for+accelerating+ai+workloads+in+red+hat+ocp+with+nvidia+dgx+a100+servers+and+nvidia+infiniband+fabric#src-99399137_RDGforAcceleratingAIWorkloadsinRedHatOCPwithNVIDIADGXA100ServersandNVIDIAInfiniBandFabric-OpenShiftContainerPlatformNetworking).
 - deepspeed `ZeRO-3 Offload` can exploit both GPU and CPU memory in order to optimize VRAM consumption further compared to `ZeRO-1`. It offloads the optimizer memory and computation from the GPU to the host CPU especially when Adam optimizer requires a significant amount of GPU memory. ZeRO Offload uses DeepSpeedCPUAdam which is a highly optimized CPU implementation of Adam, increasing speed by 5-folds compared to standard PyTorch.
 - The model size must be significantly huge to take advantage of the deepspeed technology. As seen in `t5-small` model training result, the loaded VRAM is lower than with deepspeed.
- 
+- 🤗 trainer code is highly compatible with deepspeed implementation, requires only few code adjustments.
 
 ### <a name="toc_2"></a>3. Preparation
 
