@@ -259,6 +259,16 @@ depth 6:
 - All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~13GB:
 <img width="1002" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/97f63ade-170e-47d6-8c0d-54a613e833ac">
 
+- Time taken by each worker node to complete the training:
+```
+10.254.19.151: {'eval_loss': 0.053917448967695236, 'eval_runtime': 28.1014, 'eval_samples_per_second': 299.664, 'eval_steps_per_second': 3.132, 'epoch': 3.0}
+10.254.21.77: {'eval_loss': 0.053917448967695236, 'eval_runtime': 28.1015, 'eval_samples_per_second': 299.664, 'eval_steps_per_second': 3.132, 'epoch': 3.0}
+10.254.18.216: {'eval_loss': 0.053917448967695236, 'eval_runtime': 28.0902, 'eval_samples_per_second': 299.784, 'eval_steps_per_second': 3.133, 'epoch': 3.0}
+100%|██████████| 1764/1764 [2:55:02<00:00,  5.91s/it]
+100%|██████████| 88/88 [00:27<00:00,  3.12it/s]
+10.254.21.77: {'train_runtime': 10530.2773, 'train_samples_per_second': 16.055, 'train_steps_per_second': 0.168, 'train_loss': 0.11271674454617663, 'epoch': 3.0}
+10.254.19.151: {'train_runtime': 10529.9998, 'train_samples_per_second': 16.056, 'train_steps_per_second': 0.168, 'train_loss': 0.1125946034109241, 'epoch': 3.0}
+```
 
 #### <a name="toc_11"></a>4.3 Inference
 
