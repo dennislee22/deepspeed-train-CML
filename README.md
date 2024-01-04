@@ -16,13 +16,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[4.2. Training Result without ZeRO (t5-large)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.3. Inference](#toc_10)<br>
 [5. deepspeed 3 Nodes/Pods with ZeRO-1](#toc_11)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_12)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result with ZeRO-1 (t5-small)](#toc_12)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_13)<br>
 [6. deepspeed 2 Nodes/Pods with ZeRO-1](#toc_14)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_15)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result with ZeRO-1 (t5-large)](#toc_15)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_16)<br>
 [7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload](#toc_17)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result](#toc_18)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result with ZeRO-3 Offload (t5-large)](#toc_18)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[7.2. Inference](#toc_19)<br>
 
 ### <a name="toc_0"></a>1. Objective
