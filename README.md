@@ -98,15 +98,45 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
 #### <a name="toc_5"></a>3.5 CML Session
 
 
-### <a name="toc_6"></a>4. Single node with 1 GPU
+### <a name="toc_6"></a>4. Single node with 1 GPU (t5-small)
 
-#### <a name="toc_7"></a>4.1 Training Result
+- Batch size 32 is configured for training t5-small model (60 million parameters).
+```
+!python textsql_train.py \
+--model_id 't5-small' \
+--outputdir small-trainoutput-no_ds \
+--epochs 3 \
+--per_device_train_batch_size 32 \
+--per_device_eval_batch_size 32 \
+--gradient_checkpointing False
+```
 
-<img width="983" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/b027bd5c-81f2-4406-b1bc-d7fe94775ecf">
+#### <a name="toc_7"></a>4.1 Training Result (t5-small)
 
-#### <a name="toc_8"></a>4.2 Inference
+<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4">
 
-### <a name="toc_9"></a>4. deepspeed 3 nodes with 1 GPU each (Zero 1)
+- Time taken by single node to complete the training:
+```
+{'train_runtime': 742.5369, 'train_samples_per_second': 227.686, 'train_steps_per_second': 7.119, 'train_loss': 0.16859441952772136, 'epoch': 3.0}
+```
+
+#### <a name="toc_8"></a>4.2 Inference (t5-small)
+
+```
+Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
+Model Prediction: SELECT US air force FROM table WHERE Pilot Officer = commonwealth
+Expected Answer: SELECT US Air Force equivalent FROM table WHERE Commonwealth equivalent = Pilot Officer
+=================================
+
+Test Instruction: what is the total number of total w–l where doubles w–l is 11–11
+Model Prediction: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
+Expected Answer: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
+=================================
+
+Inference took 1.03 seconds
+```
+
+### <a name="toc_9"></a>4. deepspeed 3 nodes with ZERO-1 (t5-small)
 
 - Batch size 32 is configured for training t5-small model (60 million parameters).
 ```
@@ -186,7 +216,7 @@ depth 6:
     fwd latency - {'T5Attention': '22.82 ms'}
 ```
 
-#### <a name="toc_10"></a>4.1 Training Result
+#### <a name="toc_10"></a>4.1 Training Result (t5-small)
 
 
 - With batch size of 32, deepspeed splits 5286 training steps into 1764 per epoch for each worker.
@@ -212,7 +242,7 @@ depth 6:
 <img width="1100" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/75680608-acbe-4beb-b5c8-16c8dd1ed376">
   
 
-#### <a name="toc_11"></a>4.2 Inference
+#### <a name="toc_11"></a>4.2 Inference (t5-small)
 
 ```
 Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
@@ -224,23 +254,7 @@ Test Instruction: What is the nationality of the player from Vancouver Canucks?
 Model Prediction: SELECT Nationality FROM table WHERE Player = Vancouver Canucks
 Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canucks
 =================================
-
-Test Instruction: When were the ships launched that were laid down on september 1, 1964?
-Model Prediction: SELECT Date FROM table WHERE Launched = september 1, 1964
-Expected Answer: SELECT Launched FROM table WHERE Laid down = September 1, 1964
-=================================
-
-Test Instruction: List the # for ships commissioned on september 30, 1967.
-Model Prediction: SELECT # FROM table WHERE Ships commissioned FROM table WHERE Ships commissioned = september 30, 1967
-Expected Answer: SELECT # FROM table WHERE Commissioned = September 30, 1967
-=================================
-
-Test Instruction:  What could a spanish coronel be addressed as in the commonwealth military?
-Model Prediction: SELECT AVG Spanish Coronel FROM table WHERE Commonwealth Military = Commonwealth
-Expected Answer: SELECT Commonwealth equivalent FROM table WHERE Rank in Spanish = Coronel
-=================================
-
-Inference took 1.46 seconds
+Inference took 1.02 seconds
 ```
 
 ### <a name="toc_12"></a>4. deepspeed 2 nodes with 1 GPU each (Zero 2)
