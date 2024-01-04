@@ -25,12 +25,13 @@
 1. When fine-tuning/training a LLM, insufficient VRAM is a major constraint. Major components that will be loaded into the VRAM during training process are:
 
 ```
-Memory = Model Parameters + Optimiser + Gradient + Activation 
+VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activation 
 ```
 
 2. For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
 
-<p><span style="font-size:0.8em">Memory = (4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </span></p><img width="363" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
+VRAM (training/fine-tuning) =<br>
+<sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
 3. Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So the question is how to train a bigger model beyond 7B parameters with 40GB GPU cards. Techniques include:
 &nbsp;a.Pipeline Par
