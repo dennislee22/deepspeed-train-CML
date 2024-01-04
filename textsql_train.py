@@ -1,27 +1,28 @@
 import os
 import argparse
 import numpy as np
-from transformers import (
-    AutoModelForSeq2SeqLM,
-    DataCollatorForSeq2Seq,
-    AutoTokenizer,
-    T5ForConditionalGeneration,
-    set_seed,
-)
-from datasets import load_from_disk
 import torch
 import evaluate
 import nltk
-import numpy as np
-from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments, DataCollatorForSeq2Seq
-from transformers import TrainerCallback, EarlyStoppingCallback, is_tensorboard_available
-import os
+import shutil
+from transformers import (AutoTokenizer,
+                          GenerationConfig,
+                          T5ForConditionalGeneration,
+                          Seq2SeqTrainer, 
+                          Seq2SeqTrainingArguments, 
+                          TrainerCallback,
+                          EarlyStoppingCallback,
+                          is_tensorboard_available,
+                          DataCollatorForSeq2Seq)
+from datasets import load_from_disk
 
-nltk.download("punkt", quiet=True)
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
+#nltk.download("punkt", quiet=True)
 
 # Metric
 metric = evaluate.load("rouge")
-# evaluation generation args
+
 gen_kwargs = {
     "early_stopping": True,
     "length_penalty": 2.0,
@@ -43,23 +44,21 @@ def parse_arge():
     """Parse the arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_id", type=str, default="t5-small", help="Model id to use for training.")
-    parser.add_argument("--dataset_path", type=str, default="my_dataset", help="Path to the already processed dataset.")
-    parser.add_argument("--outputdir", type=str, default="trainoutput-wikisql", help="Output directory.")
+    parser.add_argument("--dataset_path", type=str, default="wikisql_tok_dataset", help="processed dataset.")
+    parser.add_argument("--outputdir", type=str, default="2trainoutput-wikisql", help="Output directory.")
     parser.add_argument("--epochs", type=int, default=5, help="Number of epochs to train for.")
-    parser.add_argument("--per_device_train_batch_size", type=int, default=16, help="Batch size to use for training.")
-    parser.add_argument("--per_device_eval_batch_size", type=int, default=16, help="Batch size to use for testing.")
+    parser.add_argument("--per_device_train_batch_size", type=int, default=64, help="Batch size to use for training.")
+    parser.add_argument("--per_device_eval_batch_size", type=int, default=64, help="Batch size to use for testing.")
     parser.add_argument("--generation_max_length", type=int, default=128, help="Maximum length to use for generation")
     parser.add_argument("--generation_num_beams", type=int, default=4, help="Number of beams to use for generation.")
-    parser.add_argument("--lr", type=float, default=3e-3, help="Learning rate to use for training.")
-    parser.add_argument("--seed", type=int, default=42, help="Seed to use for training.")
+    parser.add_argument("--gradient_checkpointing", type=bool, default=False, help="Gradient checkpointing")
     parser.add_argument("--deepspeed", type=str, default=None, help="Path to deepspeed config file.")
-    parser.add_argument("--gradient_checkpointing", type=bool, default=True, help="Path to deepspeed config file.")
-    parser.add_argument(
-        "--bf16",
-        type=bool,
-        default=True if torch.cuda.get_device_capability()[0] == 8 else False,
-        help="Whether to use bf16.",
-    )
+    #parser.add_argument(
+    #    "--bf16",
+    #    type=bool,
+    #    default=True if torch.cuda.get_device_capability()[0] == 8 else False,
+    #    help="Whether to use bf16.",
+    #)
     args = parser.parse_known_args()
     return args
 def custom_rewrite_logs(d, mode):
@@ -168,27 +167,23 @@ class CombinedTensorBoardCallback(TrainerCallback):
         for tbw in self.tb_writers.values():
             tbw.close()
         self.tb_writers = None
-        
-def training_function(args):
-    # set seed
-    set_seed(args.seed)
 
-    # load dataset from disk and tokenizer
+
+def training_function(args):
     train_dataset = load_from_disk(os.path.join(args.dataset_path, "train"))
     eval_dataset = load_from_disk(os.path.join(args.dataset_path, "eval"))
     tokenizer = AutoTokenizer.from_pretrained(args.model_id)
-    # load model from the hub
     model = T5ForConditionalGeneration.from_pretrained(
         args.model_id,
         use_cache=False if args.gradient_checkpointing else True,  # this is needed for gradient checkpointing
     )
 
     # we want to ignore tokenizer pad token in the loss
-    label_pad_token_id = -100
+    #label_pad_token_id = -100
     # Data collator
-    data_collator = DataCollatorForSeq2Seq(
-        tokenizer, model=model, label_pad_token_id=label_pad_token_id, pad_to_multiple_of=8
-    )
+    #data_collator = DataCollatorForSeq2Seq(
+    #    tokenizer, model=model, label_pad_token_id=label_pad_token_id, pad_to_multiple_of=8
+    #)
 
     # Define compute metrics function
     def compute_metrics(eval_preds):
@@ -213,46 +208,46 @@ def training_function(args):
     output_dir = args.outputdir.split("/")[-1]
     training_args = Seq2SeqTrainingArguments(
         output_dir=output_dir,
-        do_train=True,
-        do_eval=True,
+        #generation_config=gen_cfg,
+        num_train_epochs=args.epochs,
+        generation_max_length=args.generation_max_length,
+        generation_num_beams=args.generation_num_beams,
         per_device_train_batch_size=args.per_device_train_batch_size,
         per_device_eval_batch_size=args.per_device_eval_batch_size,
         predict_with_generate=True,
-        generation_max_length=args.generation_max_length,
-        generation_num_beams=args.generation_num_beams,
-        fp16=False,  # T5 overflows with fp16
-        bf16=args.bf16,  # Use BF16 if available
-        learning_rate=args.lr,
-        num_train_epochs=args.epochs,
-        deepspeed=args.deepspeed,
+        evaluation_strategy="epoch",
+        load_best_model_at_end=True,
+        do_train=True,
+        do_eval=True,
+        save_strategy="epoch",
+        report_to="tensorboard", #bypass MLflow
+        overwrite_output_dir=True,
+        fp16=False, #lower VRAM utilization #False for T5-large https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839
         gradient_checkpointing=args.gradient_checkpointing,
+        #learning_rate=args.lr,
+        deepspeed=args.deepspeed,
         logging_dir=f"{output_dir}/logs",
         logging_strategy="steps",
         logging_steps=500,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
-        load_best_model_at_end=True,
-        overwrite_output_dir=True,
-        report_to="tensorboard",
     )
-    
-    early_stopping = EarlyStoppingCallback(early_stopping_patience= 5, 
-                                    early_stopping_threshold= 0.001)
+ 
+    early_stopping = EarlyStoppingCallback(early_stopping_patience= 6, 
+                                    early_stopping_threshold= 0.055)
     
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        data_collator=data_collator,
-        compute_metrics=compute_metrics,
-        callbacks= [early_stopping,CombinedTensorBoardCallback]
+        #data_collator=data_collator,
+        #compute_metrics=compute_metrics, #slow down training
+        #callbacks= [early_stopping,CombinedTensorBoardCallback]
+        callbacks= [early_stopping] #for ZeRO-3 only
     )
 
     # Start training
     trainer.train()
-
-    # Save our tokenizer and create model card
+    trainer.save_model()
     tokenizer.save_pretrained(output_dir)
     trainer.create_model_card()
 
