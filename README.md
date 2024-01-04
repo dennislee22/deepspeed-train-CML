@@ -40,7 +40,7 @@ VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
 - Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. The available techniques today include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP) or even 3D Parallelism.
-- This article focuses on fine-tuning LLM suing **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique. ZeRO is capable of sharding the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised by DP). In other words, **ZeRO allows fitting huge LLM into the GPUs with restricted memory, both intra-node and inter-node.**
+- This article focuses on fine-tuning LLM utilizing **[deepspeed ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique. ZeRO is capable of sharding the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised by DP). In other words, **ZeRO allows fitting huge LLM into the GPUs with restricted memory, both intra-node and inter-node.**
 
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
