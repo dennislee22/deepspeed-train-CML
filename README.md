@@ -27,8 +27,8 @@
 
 ### <a name="toc_0"></a>1. Objective
 
-- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. General-purpose RAM and VRAM are different. It's an uphill task to design GPU with abundant VRAM memory that provides both high capacity and high speed in the performance-intensive GPU architecture.
-- In general, major components that will be loaded into the VRAM during LLM training process are as follows.
+- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. First, let's understand the actual GPU memory requirements to fine-tune a model. 
+- In general, the major components that will be loaded into the VRAM during LLM training process are as follows.
 
 ```
 VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activation 
@@ -39,34 +39,30 @@ VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activati
 VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
-- Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. Techniques that are available today include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP).
-- This article focuses on **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique that is capable of sharding the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised in DP). In other words, **ZeRO allows fitting huge LLM into the GPUs with restricted memory, both intra-node and inter-node.**
+- Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. The available techniques today include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP).
+- This article focuses on fine-tuning LLM suing **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique. ZeRO is capable of sharding the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised by DP). In other words, **ZeRO allows fitting huge LLM into the GPUs with restricted memory, both intra-node and inter-node.**
 
-- The target use case of the experiments is fine-tuning the model with Text-to-SQL dataset with/without ZeRO, enabling the translation of plain English into SQL query statements. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform. Results are detailed in the following section. 
- 
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
-- All experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
-  
+- The target use case of the experiments is fine-tuning the model with Text-to-SQL dataset with/without ZeRO, enabling the translation of plain English into SQL query statements. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform.
+- The experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
+- Table below summarizes the benchmark result when running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
+
+| Model     | Technique           | Total Node/Pod | Duration | Inference Result    | Memory (each Pod)  |
+| :---      |     :---:           |  :---:         |  :---:   |   :---:             |   :---:            |
+| t5-small  | w/o deepspeed       |     1          | ~742 secs | Good                |   3 GB             |
+| t5-large  | w/o deepspeed       |     1          | ~12 mins | Good                |   15 GB            |
+| t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs | Good                |   5 GB             |
+| t5-large  | deepspeed ZeRO-1    |     3          | ~12 mins | Good                |   13 GB            |
+| t5-large  | deepspeed ZeRO-1    |     2          | ~12 mins | Good                |   15 GB            |
+| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~12 mins | Good                |   9 GB             |
+
+#### Summary:
+- deepspeed `ZeRO-1` with 3 nodes/pods manage to reduce the VRAM consumption when training `t5-large` model.
+- deepspeed `ZeRO-3 Offload` can exploit both GPU and CPU memory in order to optimize VRAM consumption further compared to `ZeRO-1`, but at the expense of slower training speed. When training LLM in multi-nodes landscape, the speed is often bottlenecked by network communication overhead (both physical underlay and virtual overlay network) and GPU-CPU-GPU transition process. This can be overcome by resorting to compelling options such as SR-IOV and Infiniband technology. Here's the [reference](https://docs.nvidia.com/networking/display/public/sol/rdg+for+accelerating+ai+workloads+in+red+hat+ocp+with+nvidia+dgx+a100+servers+and+nvidia+infiniband+fabric#src-99399137_RDGforAcceleratingAIWorkloadsinRedHatOCPwithNVIDIADGXA100ServersandNVIDIAInfiniBandFabric-OpenShiftContainerPlatformNetworking).
+- The model size must be significantly huge to take advantage of the deepspeed technology. As seen in `t5-small` model training result, the loaded VRAM is lower than with deepspeed.
  
-- Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
- ZeRO-3 Offload can exploit both GPU and CPU memory,
-
-- Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
-
-&nbsp;&nbsp;a. Time taken to fine-tune different LLM with 10% of Text-to-SQL dataset (File size=20.7 MB):<br>
-
-| Model     | Fine-Tune Technique | Fine-Tune Duration | Inference Result     |
-| :---      |     :---:           |   ---:             | :---                 |
-| bloom-1b1  | w/o deepspeed    | ~12 mins           | Good                |
-| bloom-7b1  | No Quantization    | OOM                | N/A                  |
-| bloom-7b1  | 4-bit BitsAndBytes  | ~83 mins          | Good                 |
-| falcon-7b  | No Quantization    | OOM                | N/A                  |
-| falcon-7b  | 8-bit BitsAndBytes  | ~65 mins          | Good                 |
-| codegen2-1B  | No Quantization    | ~12 mins         | Bad                  |
-
-<sub>OOM = Out-Of-Memory</sub>
 
 ### <a name="toc_2"></a>3. Preparation
 
@@ -284,7 +280,7 @@ Content of hostfile:
 --deepspeed dsconfig/zero1profiler.json
 ```
 
-- DeepSpeed Flops Profiler (zprofiler_result.txt as defined in the dsconfig/zero1profiler.json file):
+- DeepSpeed Flops Profiler (`zprofiler_result.txt` as defined in the `dsconfig/zero1profiler.json` file):
 ```
 -------------------------- DeepSpeed Flops Profiler --------------------------
 Profile Summary at step 2:
