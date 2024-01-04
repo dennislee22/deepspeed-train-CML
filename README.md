@@ -78,7 +78,9 @@ Installed CUDA version 12.2 does not match the version torch was compiled with 1
 
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example. Specific CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
+- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example.
+- The image is installed with the required Nvidia packages. Specific CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
+- For inter-nodes training deployment, deepspeed uses launchers such as OpenMPI and PDSH (a variant of rsh) which are both installed in the docker image as well.
 
 ```
 docker build -t dlee-deepspeed:2024.1.4 . -f deepspeed-pdsh-mpi-nvcc-jupyter
