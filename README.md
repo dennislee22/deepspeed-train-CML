@@ -96,11 +96,11 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 
 - Register the new image in CML.
 
-<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779"><br>
 
 - Verify that the image has been registered succesfully.
 
-<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192">
+<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192"><br>
 
 #### <a name="toc_4"></a>3.2 Create CML Session
 
@@ -108,15 +108,15 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 
 - Add the newly registered image in the CML project.
 
-<img width="1422" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/a88ca709-a10b-43f1-bd30-b9f6786bafbc">
+<img width="1422" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/a88ca709-a10b-43f1-bd30-b9f6786bafbc"><br>
 
 - Add the following environment variables in the CML project.
 
-<img width="1185" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/299b4736-b9fc-4f91-9f8f-09e52bd25f5d">
+<img width="1185" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/299b4736-b9fc-4f91-9f8f-09e52bd25f5d"><br>
 
 - Create a new CML session in the project.
   
-<img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d">
+<img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d"><br>
 
 - Open the Terminal window in the CML session and run the following commands to replace the CUDA path with the installed version in the custom docker image.
   
@@ -134,17 +134,17 @@ pip install -r requirements.txt
 
 - Verify the status of deepspeed.
 
-<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/abe5a96d-780c-4fe7-b8aa-f943317ec3ff">
+<img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/abe5a96d-780c-4fe7-b8aa-f943317ec3ff"><br>
 
 
 #### <a name="toc_5"></a>3.3 Create Tensorboard in CML Application
 
 - Tensorboard is deployed to monitor the training/validation loss. The training script will report to Tensorboard.
 - Create Tensorboard in the CML application
-<img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
+<img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831"><br>
 
 - Upon successful creation, browse the Tensorboard website.
-<img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af">
+<img width="571" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/68b4c50e-b536-458e-ad00-7b67716097af"><br>
 
 
 #### <a name="toc_6"></a>3.4 Prepare Dataset & Model
@@ -173,7 +173,7 @@ git-lfs clone
 
 - The single node/pod consumes the GPU memory consistently throughout the training process at ~3GB:
 
-<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4"><br>
 
 - Time taken by single node/pod to complete the training:
 ```
@@ -181,12 +181,12 @@ git-lfs clone
 ```
 
 - Tensorboard Profiler (Training + Validation Loss combined):
-<img width="700" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
+<img width="700" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b"><br>
 
 #### <a name="toc_9"></a>4.1 Training Result without ZeRO (t5-large)
 
 - The single node/pod consumes the GPU memory consistently throughout the training process at ~15GB:
-<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148"><br>
 
 #### <a name="toc_10"></a>4.2 Inference
 
