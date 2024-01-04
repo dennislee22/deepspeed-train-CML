@@ -13,13 +13,13 @@
 [4. Single node with 1 GPU](#toc_6)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result](#toc_7)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_8)<br>
-[5. deepspeed 3 nodes with 1 GPU each (Zero 1)](#toc_9)<br>
+[5. deepspeed 3 nodes with 1 GPU each (ZeRO 1)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
-[6. deepspeed 2 nodes with 1 GPU each (Zero 1)](#toc_12)<br>
+[6. deepspeed 2 nodes with 1 GPU each (ZeRO 1)](#toc_12)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_13)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_14)<br>
-[7. deepspeed 3 nodes with 1 GPU each (Zero 3)](#toc_15)<br>
+[7. deepspeed 3 nodes with 1 GPU each (ZeRO 3)](#toc_15)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result](#toc_16)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[7.2. Inference](#toc_17)<br>
 
@@ -36,8 +36,7 @@ VRAM (training/fine-tuning) = Model Parameters + Optimiser + Gradient + Activati
 VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
  
-3. Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So the question is how to train a bigger model beyond 7B parameters with 40GB GPU cards. Techniques include:
-&nbsp;a.Pipeline Par
+3. Thus, training a 1B or 7B model with substantial amount of dataset might be able to fit into a single GPU device with 40GB of memory and the latter might need to involve quantization technique when the training takes place. So, the question is how to train a bigger model with billions of parameters given the limited VRAM size. Techniques include Pipeline Parallelism (PP), Data Parallelism (DP) and Tensor Parallelism (TP). This article focuses on **[ZeRO](https://github.com/microsoft/DeepSpeed)** Redundancy Optimizer (ZeRO) technique that shard the 3 model states (optimizer states, gradients, and parameters) across data-parallel processes instead of replicating them (as practised in DP). ZeRO allows fitting huge LLM into the GPUs with restricted memory.
 
 6. The provided iPython codes in this repository serve as a comprehensive illustration of the complete lifecycle for fine-tuning a particular Transformers-based model using specific datasets. This includes merging LLM with the trained adapters, quantization, and, ultimately, conducting inferences with the correct prompt. The outcomes of these experiments are detailed in the following section. The target use case of the experiments is making use the Text-to-SQL dataset to train the model, enabling the translation of plain English into SQL query statements.<br>
 &nbsp;a. [ft-trl-train.ipynb](ft-trl-train.ipynb): Run the code cell-by-cell interactively to fine-tune the base model with local dataset using TRL (Transformer Reinforcement Learning) mechanism. Merge the trained adapters with the base model. Subsequently, perform model inference to validate the results.<br>
@@ -45,12 +44,12 @@ VRAM (training/fine-tuning) =<br>
 &nbsp;c. [infer_Qmodel.ipynb](ft-trl-train.ipynb): Run inference on the quantized model to validate the results.<br>
 &nbsp;d. [gradio_infer.ipynb](gradio_infer.ipynb): You may use this custom Gradio interface to compare the inference results between the base and fine-tuned model.<br>
 
-8. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively. Results are detailed in the following section. 
+8. Experiments were carried out using `t5-small` and `t5-large` models with 60 million and 770 million parameters respectively in CML v1.5.2 running on Openshift platform. Results are detailed in the following section. 
  
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
 - Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
-
+ ZeRO-3 Offload can exploit both GPU and CPU memory,
 
 - Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
 
@@ -103,8 +102,16 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 
 <img width="1422" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/a88ca709-a10b-43f1-bd30-b9f6786bafbc">
 
+- Add the following environment variables in the CML project.
+
+<img width="1185" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/299b4736-b9fc-4f91-9f8f-09e52bd25f5d">
+
+- Create a new CML session in the project.
+  
 <img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d">
 
+- Open the Terminal window in the CML session and run the following commands to replace the CUDA path with the installed version in the custom docker image.
+  
 ```
 $ rm /usr/local/cuda
 $ ln -s /usr/local/cuda-12.2 /usr/local/cuda
@@ -325,7 +332,7 @@ Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canuck
 Inference took 1.02 seconds
 ```
 
-### <a name="toc_12"></a>4. deepspeed 2 nodes with ZERO-1 (t5-large)
+### <a name="toc_12"></a>4. deepspeed 2 nodes with ZeRO-1 (t5-large)
 
 #### <a name="toc_13"></a>4.1 Training Result
 
@@ -340,11 +347,12 @@ Inference took 1.02 seconds
 #### <a name="toc_14"></a>4.2 Inference
 
 
-### <a name="toc_9"></a>4. deepspeed 3 nodes with ZERO-3++ (t5-large)
+### <a name="toc_9"></a>4. deepspeed 3 nodes with ZeRO-3 Offload (t5-large)
 
 #### <a name="toc_10"></a>4.2 Training Result (t5-large)
 
-<img width="1014" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/850188c1-6000-4a3c-9cfc-1722196b7529">
+<img width="1012" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
+
 
 
 
