@@ -56,11 +56,12 @@ VRAM (training/fine-tuning) =<br>
 | t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs | Good                |   5 GB             |
 | t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs | Good                |   13 GB            |
 | t5-large  | deepspeed ZeRO-1    |     2          |          | Good                |   15 GB            |
-| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~ | Good                |   9 GB             |
+| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs | Good                |   9 GB             |
 
 #### Summary:
-- deepspeed `ZeRO-1` with 3 nodes/pods manage to reduce the VRAM consumption when training `t5-large` model.
-- deepspeed `ZeRO-3 Offload` can exploit both GPU and CPU memory in order to optimize VRAM consumption further compared to `ZeRO-1`, but at the expense of slower training speed. When training LLM in multi-nodes landscape, the speed is often bottlenecked by network communication overhead (both physical underlay and virtual overlay network) and GPU-CPU-GPU transition process. This can be overcome by resorting to compelling options such as SR-IOV and Infiniband technology. Here's the [reference](https://docs.nvidia.com/networking/display/public/sol/rdg+for+accelerating+ai+workloads+in+red+hat+ocp+with+nvidia+dgx+a100+servers+and+nvidia+infiniband+fabric#src-99399137_RDGforAcceleratingAIWorkloadsinRedHatOCPwithNVIDIADGXA100ServersandNVIDIAInfiniBandFabric-OpenShiftContainerPlatformNetworking).
+- deepspeed `ZeRO-1` with 3 nodes/pods manage to reduce the VRAM consumption when training `t5-large` model, but at the expense of slower training speed compared to single node/pod training without deepspeed.
+-  When training LLM in multi-nodes landscape, the speed is often bottlenecked by network communication overhead (both physical underlay and virtual overlay network) and GPU-CPU-GPU transition process. This can be overcome by resorting to compelling options such as SR-IOV and Infiniband technology. Here's the [reference](https://docs.nvidia.com/networking/display/public/sol/rdg+for+accelerating+ai+workloads+in+red+hat+ocp+with+nvidia+dgx+a100+servers+and+nvidia+infiniband+fabric#src-99399137_RDGforAcceleratingAIWorkloadsinRedHatOCPwithNVIDIADGXA100ServersandNVIDIAInfiniBandFabric-OpenShiftContainerPlatformNetworking).
+- deepspeed `ZeRO-3 Offload` can exploit both GPU and CPU memory in order to optimize VRAM consumption further compared to `ZeRO-1`. Optimizers such as Adam, can consume a significant amount of GPU compute and memory. ZeRO-Offload reduces the GPU compute and memory requirements of such models by leveraging compute and memory resources on the host CPU to execute the optimizer. Furthermore, to prevent the optimizer from becoming a bottleneck, ZeRO-Offload uses DeepSpeed’s highly optimized CPU implementation of Adam called DeepSpeedCPUAdam. DeepSpeedCPUAdam is 5X–7X faster than the standard PyTorch implementation.
 - The model size must be significantly huge to take advantage of the deepspeed technology. As seen in `t5-small` model training result, the loaded VRAM is lower than with deepspeed.
  
 
@@ -444,6 +445,13 @@ Inference took 1.02 seconds
 
 - All 3 worker nodes/pods are consuming the same amount of GPU memory consistently throughout the training process at ~9GB:
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
+
+- Time taken by each worker node to complete the training:
+```
+10.254.18.217: {'train_runtime': 11044.5628, 'train_samples_per_second': 15.308, 'train_steps_per_second': 0.16, 'train_loss': 0.11009906154641219, 'epoch': 3.0}
+10.254.19.152: {'train_runtime': 11044.5643, 'train_samples_per_second': 15.308, 'train_steps_per_second': 0.16, 'train_loss': 0.10998346529850343, 'epoch': 3.0}
+10.254.21.79: {'train_runtime': 11044.3776, 'train_samples_per_second': 15.308, 'train_steps_per_second': 0.16, 'train_loss': 0.11003240544239139, 'epoch': 3.0}
+```
 
 #### <a name="toc_19"></a>7.2 Inference
 
