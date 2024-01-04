@@ -66,9 +66,9 @@ VRAM (training/fine-tuning) =<br>
 
 ### <a name="toc_2"></a>3. Preparation
 
-- PyTorch 2.1.2 requires CUDA12.1 version. This article uses docker image installed with [Nvida CUDA nvcc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html) version 12.2 for fixing some other incompatibilities.  
+- The LLM training in the following experiments use 🤗 Transformers and PyTorch software packages. PyTorch 2.1.2 requires CUDA12.1 as shown below.  
 <img width="425" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/d739357e-1421-439d-9395-2bbdf03bbd57">
-
+- This article uses docker image installed with [Nvida CUDA nvcc](https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html) version 12.2 for fixing some other incompatibilities.
 - As a reference, the outcome of the experiments shows that CUDA nvcc 12.2 can be used as reported in the following training log.
 ```
 Installed CUDA version 12.2 does not match the version torch was compiled with 12.1 but since the APIs are compatible, accepting this combination
@@ -76,8 +76,8 @@ Installed CUDA version 12.2 does not match the version torch was compiled with 1
 
 #### <a name="toc_3"></a>3.1 Build Custom Docker Image
 
-- Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, which is represented by Nexus repository in this example.
-- The image is installed with the required Nvidia packages. Specific CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
+- Build a Docker image locally (based on the native CML image with Jupyter notebook) and push it to the external docker registry, which is represented by Nexus repository in this example.
+- The image is installed with the required Nvidia packages. Specific CUDA packages can be referenced from this [Nvidia (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/) site.
 - For inter-nodes training deployment, deepspeed uses launchers such as OpenMPI and PDSH (a variant of rsh) which are both installed in the docker image as well.
 
 ```
@@ -86,7 +86,7 @@ docker tag dlee-deepspeed:2024.1.4 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-
 docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jptr:2024.1.1
 ```
 
-- Build another Docker image locally (based on the CML image with Workbench notebook) and push it to the external docker registry.
+- Build another Docker image locally (based on the CML image with Workbench notebook) and push it to the external docker registry. Use this image instead of iPython, if you want to run the training process in the form CML job.
 
 ```
 docker build -t dlee-deepspeed:2024.1.4 . -f deepspeed-pdsh-mpi-nvcc-wb
@@ -132,13 +132,14 @@ lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 pip install -r requirements.txt
 ```
 
-- Verify the status of deepspeed required libraries.
+- Verify the status of deepspeed.
 
 <img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/abe5a96d-780c-4fe7-b8aa-f943317ec3ff">
 
 
 #### <a name="toc_5"></a>3.3 Create Tensorboard in CML Application
 
+- Tensorboard is deployed to monitor the training/validation loss. The training script will report to Tensorboard.
 - Create Tensorboard in the CML application
 <img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
 
@@ -264,7 +265,7 @@ Content of hostfile:
 10.254.19.152 slots=1
 ```
 
-- Run the following cell to execute deepspeed training script. `Batch size = 32` is configured for training t5-small model (60 million parameters).
+- Run the following cell to execute deepspeed training script.
 ```
 !export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
 --launcher pdsh \
@@ -441,6 +442,7 @@ Inference took 1.02 seconds
 
 #### <a name="toc_18"></a>7.1 Training Result with ZeRO-3 Offload (t5-large)
 
+- All 3 worker nodes/pods are consuming the same amount of GPU memory consistently throughout the training process at ~9GB:
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
 
 #### <a name="toc_19"></a>7.2 Inference
