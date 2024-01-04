@@ -46,7 +46,9 @@ VRAM (training/fine-tuning) =<br>
  
 #### <a name="toc_1"></a>2. Summary & Benchmark Score
 
-- In this experiment, `Batch size=32` is configured for fine-tuning/training the models. Although using higher batch size would increase the training speed, 32 is selected to do apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
+- All experiments utilize `batch size=32` configuration for fine-tuning/training the models. Although using higher batch size would increase the training speed, batch size 32 is selected to perform apple-to-apple comparison of the training outcome without/with ZeRO technique in place.
+  
+- As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
  
 - Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
  ZeRO-3 Offload can exploit both GPU and CPU memory,
