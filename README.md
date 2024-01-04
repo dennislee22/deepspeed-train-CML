@@ -376,7 +376,7 @@ Inference took 1.02 seconds
 
 #### <a name="toc_18"></a>7.1 Training Result with ZeRO-3 Offload (t5-large)
 
-<img width="1012" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
 
 #### <a name="toc_19"></a>7.2 Inference
 
