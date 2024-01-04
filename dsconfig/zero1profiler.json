@@ -1,0 +1,25 @@
+{
+    "tensorboard": {
+    "enabled": true,
+    "output_path": "ds-tboutput/ds_logs/",
+    "job_name": "train_t5"
+    },
+    "flops_profiler": {
+        "enabled": true,
+        "profile_step": 1,
+        "module_depth": -1,
+        "top_modules": 1,
+        "detailed": true,
+        "output_file": "z1profiler_result.txt"
+    },
+    "zero_optimization": {
+        "stage": 1,
+        "reduce_bucket_size": 5e8
+    },
+    "gradient_accumulation_steps": "auto",
+    "gradient_clipping": "auto",
+    "steps_per_print": 2000,
+    "train_batch_size": "auto",
+    "train_micro_batch_size_per_gpu": "auto",
+    "wall_clock_breakdown": false
+}
