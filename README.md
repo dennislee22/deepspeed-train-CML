@@ -11,23 +11,23 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[3.2. Create Tensorboard in CML Application](#toc_4)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.3. Create CML Session](#toc_5)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.4. Prepare Dataset & Model](#toc_6)<br>
-[4. Single node with 1 GPU without ZeRO](#toc_7)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result (t5-small)](#toc_8)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Training Result (t5-large)](#toc_9)<br>
+[4. Single Node/Pod without ZeRO](#toc_7)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result without ZeRO (t5-small)](#toc_8)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[4.2. Training Result without ZeRO (t5-large)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.3. Inference](#toc_10)<br>
-[5. deepspeed 3 nodes with 1 GPU each (ZeRO 1)](#toc_9)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
-[6. deepspeed 2 nodes with 1 GPU each (ZeRO 1)](#toc_12)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_13)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_14)<br>
-[7. deepspeed 3 nodes with 1 GPU each (ZeRO 3)](#toc_15)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result](#toc_16)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[7.2. Inference](#toc_17)<br>
+[5. deepspeed 3 Nodes/Pods with ZeRO-1](#toc_11)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_12)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_13)<br>
+[6. deepspeed 2 Nodes/Pods with ZeRO-1](#toc_14)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_15)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_16)<br>
+[7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload](#toc_17)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result](#toc_18)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[7.2. Inference](#toc_19)<br>
 
 ### <a name="toc_0"></a>1. Objective
 
-- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. General-purpose RAM and VRAM are different. It's not easy to design GPU with abundant memory because what is very hard is to create memory that provides both high capacity and high speed in the performance-intensive GPU architecture.
+- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. General-purpose RAM and VRAM are different. It's an uphill task to design GPU with abundant VRAM memory that provides both high capacity and high speed in the performance-intensive GPU architecture.
 - In general, major components that will be loaded into the VRAM during LLM training process are as follows.
 
 ```
@@ -155,9 +155,9 @@ pip install -r requirements.txt
 git-lfs clone
 ```
 
-### <a name="toc_7"></a>4. Single node with 1 GPU without ZeRO
+### <a name="toc_7"></a>4. Single Node/Pod without ZeRO
 
-
+- Train the cloned `t5-small` model with the tokenized dataset using [textsql_train.py](textsql_train.py) script. The default value of other parameters can be changed/added in the argument list if necessary. Please explore the script for more information.
 ```
 !python textsql_train.py \
 --model_id 't5-small' \
@@ -168,24 +168,28 @@ git-lfs clone
 --gradient_checkpointing False
 ```
 
-#### <a name="toc_8"></a>4.1 Training Result (t5-small)
+#### <a name="toc_8"></a>4.1 Training Result without ZeRO (t5-small)
 
-<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4">
+- The single node/pod consumes the GPU memory consistently throughout the training process at ~3GB:
 
-- Time taken by single node to complete the training:
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/17fba932-61a7-4653-9159-bf2f73ace7b4">
+
+- Time taken by single node/pod to complete the training:
 ```
 {'train_runtime': 742.5369, 'train_samples_per_second': 227.686, 'train_steps_per_second': 7.119, 'train_loss': 0.16859441952772136, 'epoch': 3.0}
 ```
 
 - Tensorboard Profiler (Training + Validation Loss combined):
-<img width="1099" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
+<img width="700" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/65ed4421-0ca3-456b-a62a-b4f5806be69b">
 
-#### <a name="toc_9"></a>4.1 Training Result (t5-large)
+#### <a name="toc_9"></a>4.1 Training Result without ZeRO (t5-large)
 
-<img width="1001" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148">
+- The single node/pod consumes the GPU memory consistently throughout the training process at ~15GB:
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148">
 
 #### <a name="toc_10"></a>4.2 Inference
 
+- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
 ```
 Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
 Model Prediction: SELECT US air force FROM table WHERE Pilot Officer = commonwealth
@@ -200,7 +204,7 @@ Expected Answer: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–
 Inference took 1.03 seconds
 ```
 
-### <a name="toc_9"></a>4. deepspeed 3 nodes with ZERO-1 (t5-small)
+### <a name="toc_11"></a>5. deepspeed 3 Nodes/pod with ZERO-1
 
 ```
 Launch CML worker pod 0...
@@ -290,11 +294,10 @@ depth 6:
     fwd latency - {'T5Attention': '22.82 ms'}
 ```
 
-<img width="1421" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/96e5ba68-84b8-43f1-840e-957fdc2a2622">
+<img width="900" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/96e5ba68-84b8-43f1-840e-957fdc2a2622">
 
 
-#### <a name="toc_10"></a>4.1 Training Result (t5-small)
-
+#### <a name="toc_12"></a>5.1 Training Result with ZeRO-1 (t5-small)
 
 - With batch size of 32, deepspeed splits 5286 training steps into 1764 per epoch for each worker.
 ```
@@ -305,8 +308,8 @@ depth 6:
   0%|          | 0/1764 [00:00<?, ?it/s]/home/cdsw/.local/lib/python3.10/site-packages/deepspeed/runtime/zero/stage_1_and_2.py:1652: UserWarning: The torch.cuda.*DtypeTensor constructors are no longer recommended. It's best to use methods such as torch.tensor(data, dtype=*, device='cuda') to create tensors. (Triggered internally at ../torch/csrc/tensor/python_tensor.cpp:83.)
 ```
 
-- All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~5GB:
-<img width="1004" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/939a0d56-87e1-4388-bd60-363bff884357">
+- All 3 worker nodes/pods are consuming the same amount of GPU memory consistently throughout the training process at ~5GB:
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/939a0d56-87e1-4388-bd60-363bff884357">
 
 - NVIDIA® Data Center GPU Manager (DCGM) GPU Utilization metric displayed in Openshift graph: 
 <img width="1429" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4ecbe544-8b2f-427b-bc3d-dd6001eefcc9">
@@ -322,12 +325,12 @@ depth 6:
 ```
 
 - Tensorboard profiler result:
-<img width="1100" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/75680608-acbe-4beb-b5c8-16c8dd1ed376">
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/75680608-acbe-4beb-b5c8-16c8dd1ed376">
 
-#### <a name="toc_10"></a>4.2 Training Result (t5-large)
+#### <a name="toc_13"></a>5.2 Training Result with ZeRO-1 (t5-large)
 
-- All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~13GB:
-<img width="1002" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/97f63ade-170e-47d6-8c0d-54a613e833ac">
+- All 3 worker nodes/pods are consuming the same amount of GPU memory consistently throughout the training process at ~13GB:
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/97f63ade-170e-47d6-8c0d-54a613e833ac">
 
 - Time taken by each worker node to complete the training:
 ```
@@ -340,8 +343,9 @@ depth 6:
 10.254.19.151: {'train_runtime': 10529.9998, 'train_samples_per_second': 16.056, 'train_steps_per_second': 0.168, 'train_loss': 0.1125946034109241, 'epoch': 3.0}
 ```
 
-#### <a name="toc_11"></a>4.3 Inference
+#### <a name="toc_14"></a>5.3 Inference
 
+- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
 ```
 Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
 Model Prediction: SELECT COUNT Nationalities FROM FROM table WHERE Players = New Jersey Devils
@@ -355,11 +359,12 @@ Expected Answer: SELECT Nationality FROM table WHERE NHL team = Vancouver Canuck
 Inference took 1.02 seconds
 ```
 
-### <a name="toc_12"></a>4. deepspeed 2 nodes with ZeRO-1 (t5-large)
+### <a name="toc_15"></a>6. deepspeed 2 Nodes/Pods with ZeRO-1
 
-#### <a name="toc_13"></a>4.1 Training Result
+#### <a name="toc_16"></a>6.1 Training Result with ZeRO-1 (t5-large)
 
-<img width="1003" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4a510646-beea-47e4-9850-92f8fe8fdd8a">
+- All 2 worker nodes/pods are consuming the same amount of GPU memory consistently throughout the training process at ~14GB:
+<img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4a510646-beea-47e4-9850-92f8fe8fdd8a">
 
 - With batch size of 32, deepspeed splits 5286 training steps into 2643 per epoch for each worker.
 ```
@@ -367,16 +372,28 @@ Inference took 1.02 seconds
   0%|          | 0/2643 [00:00<?, ?it/s]
 ```
 
-#### <a name="toc_14"></a>4.2 Inference
+### <a name="toc_17"></a>7. deepspeed 3 Nodes/Pods with ZeRO-3 Offload
 
-
-### <a name="toc_9"></a>4. deepspeed 3 nodes with ZeRO-3 Offload (t5-large)
-
-#### <a name="toc_10"></a>4.2 Training Result (t5-large)
+#### <a name="toc_18"></a>7.1 Training Result with ZeRO-3 Offload (t5-large)
 
 <img width="1012" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7231d61-8daf-4253-afb0-3345ad81c6c5">
 
+#### <a name="toc_19"></a>7.2 Inference
 
+- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
+```
+Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
+Model Prediction: SELECT US air force FROM table WHERE Pilot Officer = commonwealth
+Expected Answer: SELECT US Air Force equivalent FROM table WHERE Commonwealth equivalent = Pilot Officer
+=================================
+
+Test Instruction: what is the total number of total w–l where doubles w–l is 11–11
+Model Prediction: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
+Expected Answer: SELECT COUNT Total W–L FROM table WHERE Doubles W–L = 11–11
+=================================
+
+Inference took 1.03 seconds
+```
 
 
 
