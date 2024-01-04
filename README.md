@@ -238,6 +238,12 @@ depth 6:
 - All 3 worker nodes are consuming the same GPU memory utilization rate consistently at ~5GB:
 <img width="1004" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/939a0d56-87e1-4388-bd60-363bff884357">
 
+- NVIDIA® Data Center GPU Manager (DCGM) GPU Utilization metric displayed in Openshift graph: 
+<img width="1429" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4ecbe544-8b2f-427b-bc3d-dd6001eefcc9">
+
+- NVIDIA® Data Center GPU Manager (DCGM) Memory Utilization metric displayed in Openshift graph:
+<img width="1423" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/017259b4-b716-4243-bc65-1a712b353312">
+  
 - Time taken by each worker node to complete the training:
 ```
 10.254.21.77: {'train_runtime': 922.0487, 'train_samples_per_second': 183.358, 'train_steps_per_second': 1.913, 'train_loss': 0.23240086172713714, 'epoch': 3.0}
