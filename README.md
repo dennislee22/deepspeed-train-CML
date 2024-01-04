@@ -13,12 +13,15 @@
 [4. Single node with 1 GPU](#toc_6)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result](#toc_7)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.2. Inference](#toc_8)<br>
-[5. deepspeed 2 nodes with 1 GPU each (Zero 1)](#toc_9)<br>
+[5. deepspeed 3 nodes with 1 GPU each (Zero 1)](#toc_9)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.1. Training Result](#toc_10)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[5.2. Inference](#toc_11)<br>
-[6. deepspeed 2 nodes with 1 GPU each (Zero 2)](#toc_12)<br>
+[6. deepspeed 2 nodes with 1 GPU each (Zero 1)](#toc_12)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.1. Training Result](#toc_13)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[6.2. Inference](#toc_14)<br>
+[7. deepspeed 3 nodes with 1 GPU each (Zero 3)](#toc_15)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[7.1. Training Result](#toc_16)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[7.2. Inference](#toc_17)<br>
 
 ### <a name="toc_0"></a>1. Objective
 
@@ -48,7 +51,6 @@ VRAM (training/fine-tuning) =<br>
 
 - Graph below depicts the GPU memory utilization during a specific stage. This graph is computed based on the results obtained from the experiments as detailed in the tables below.
 
-<img width="897" alt="image" src="https://github.com/dennislee22/FT-Merge-Quantize-Infer-CML/assets/35444414/c50dbbcc-41a5-4f51-a09d-ac27b21dcb58"><br>
 
 - Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
 
@@ -82,22 +84,36 @@ OOM = Out-Of-Memory
 - Build a Docker image locally (based on the CML image with Jupyter notebook) and push it to the external docker registry, represented by Nexus repository in this example. For reference, CUDA packages can be referenced from this [Nvidia link (ubuntu2004 image)](https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/).
 
 ```
-docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-jupyter
-docker tag dlee-deepspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
-docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jupyter:2024.1.1
+docker build -t dlee-deepspeed:2024.1.4 . -f deepspeed-pdsh-mpi-nvcc-jupyter
+docker tag dlee-deepspeed:2024.1.4 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jptr:2024.1.4
+docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-jptr:2024.1.1
 ```
 
 - Build another Docker image locally (based on the CML image with Workbench notebook) and push it to the external docker registry.
 
 ```
-docker build -t dlee-deepspeed:2024.1.1 . -f deepspeed-pdsh-mpi-nvcc-wb
-docker tag dlee-deepspeed:2024.1.1 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
-docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.1
+docker build -t dlee-deepspeed:2024.1.4 . -f deepspeed-pdsh-mpi-nvcc-wb
+docker tag dlee-deepspeed:2024.1.4 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
+docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 ```
+
+<img width="1377" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779">
+
+<img width="694" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192">
+
+
 #### <a name="toc_4"></a>3.2 Dataset & Model
 
 #### <a name="toc_5"></a>3.5 CML Session
 
+<img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d">
+
+```
+$ rm /usr/local/cuda
+$ ln -s /usr/local/cuda-12.2 /usr/local/cuda
+$ ls -l /usr/local/cuda
+lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
+```
 
 ### <a name="toc_6"></a>4. Single node with 1 GPU (t5-small)
 
@@ -145,6 +161,16 @@ Inference took 1.03 seconds
 ```
 
 ### <a name="toc_9"></a>4. deepspeed 3 nodes with ZERO-1 (t5-small)
+
+```
+Launch CML worker pod 0...
+Launch CML worker pod 1...
+Launch CML worker pod 2...
+Content of hostfile:
+10.254.21.79 slots=1
+10.254.18.217 slots=1
+10.254.19.152 slots=1
+```
 
 - Batch size 32 is configured for training t5-small model (60 million parameters).
 ```
@@ -224,6 +250,9 @@ depth 6:
     fwd latency - {'T5Attention': '22.82 ms'}
 ```
 
+<img width="1421" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/96e5ba68-84b8-43f1-840e-957fdc2a2622">
+
+
 #### <a name="toc_10"></a>4.1 Training Result (t5-small)
 
 
@@ -300,7 +329,12 @@ Inference took 1.02 seconds
 
 #### <a name="toc_14"></a>4.2 Inference
 
-- Tables below summarize the benchmark result when running the experiments using 1 unit of Nvidia A100-PCIE-40GB GPU on CML with Openshift (bare-metal):<br>
+
+### <a name="toc_9"></a>4. deepspeed 3 nodes with ZERO-3++ (t5-large)
+
+#### <a name="toc_10"></a>4.2 Training Result (t5-large)
+
+<img width="1014" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/850188c1-6000-4a3c-9cfc-1722196b7529">
 
 
 
