@@ -190,6 +190,10 @@ git-lfs clone
 - The single node/pod consumes the GPU memory consistently throughout the training process at ~15GB:
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148"><br>
 
+```
+{'train_runtime': 7465.4684, 'train_samples_per_second': 22.646, 'train_steps_per_second': 0.708, 'train_loss': 0.07108728009735235, 'epoch': 3.0}
+```
+
 #### <a name="toc_10"></a>4.2 Inference
 
 - Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
