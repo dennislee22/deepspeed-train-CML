@@ -104,7 +104,7 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
 
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/38c82e3c-2ee4-4e00-9fb1-7a2f2c582779"><br>
 
-- Verify that the image has been registered succesfully.
+- Verify that the image has been registered successfully.
 
 <img width="500" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/bdc45baa-54a2-4e39-afa1-7e4ff8988192"><br>
 
