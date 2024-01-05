@@ -8,8 +8,8 @@
 [2. Benchmark Score & Summary](#toc_1)<br>
 [3. Preparation](#toc_2)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.1. Build Custom Docker Image](#toc_3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Create Tensorboard in CML Application](#toc_4)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;[3.3. Create CML Session](#toc_5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.2. Create CML Session](#toc_4)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;[3.3. Create Tensorboard in CML Application](#toc_5)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[3.4. Prepare Dataset & Model](#toc_6)<br>
 [4. Single Node/Pod without ZeRO](#toc_7)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[4.1. Training Result without ZeRO (t5-small)](#toc_8)<br>
