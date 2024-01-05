@@ -57,7 +57,6 @@ VRAM (training/fine-tuning) =<br>
 | t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs |    3   | Good                |   13 GB            |
 | t5-large  | deepspeed ZeRO-1    |     2          |      -      |    3   | Good                |   15 GB            |
 | t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs |    3   | Good                |   9 GB             |
-| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs |    3   | Good                |   9 GB             |
 | t5-3b     | w/o deepspeed       |     1          |      -      |    3   | -                   |   OOM              |
 | t5-3b     | deepspeed ZeRO-3 Offload  |     3    |      N/A    |    3   | N/A                 |   21 GB            |
 
