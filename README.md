@@ -68,7 +68,7 @@ VRAM (training/fine-tuning) =<br>
 -  When training LLM in the multi-nodes landscape, the speed is often bottlenecked by network communication overhead (both physical underlay and virtual overlay network) and GPU-CPU-GPU transition process. This can be overcome by resorting to costly options such as SR-IOV and Infiniband technology. Here's the [reference](https://docs.nvidia.com/networking/display/public/sol/rdg+for+accelerating+ai+workloads+in+red+hat+ocp+with+nvidia+dgx+a100+servers+and+nvidia+infiniband+fabric#src-99399137_RDGforAcceleratingAIWorkloadsinRedHatOCPwithNVIDIADGXA100ServersandNVIDIAInfiniBandFabric-OpenShiftContainerPlatformNetworking).
 - deepspeed `ZeRO-3 Offload` can exploit both GPU and CPU memory in order to optimize VRAM consumption further compared to `ZeRO-1`. It offloads the optimizer memory and computation from the GPU to the host CPU which is a compelling solution to address memory inefficiency of Adam optimizer. ZeRO Offload uses DeepSpeedCPUAdam which is a highly optimized CPU implementation of Adam, increasing speed by 5-folds compared to standard PyTorch.
 - The model size must be significantly huge to take advantage of the deepspeed technology. As seen in `t5-small` model training result, the loaded VRAM is lower than with deepspeed.
-- 🤗 trainer code is highly compatible with deepspeed implementation, requires only few code adjustments.
+- 🤗 trainer code is highly compatible with deepspeed implementation, requires only little code adjustments.
 
 ### <a name="toc_2"></a>3. Preparation
 
