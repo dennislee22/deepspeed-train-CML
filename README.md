@@ -125,7 +125,7 @@ docker push 10.113.204.134:9999/pvcds152/p3.10-nvcc-pdsh-mpi-wb:2024.1.4
   
 <img width="1414" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/0ab49111-1b91-4491-9e81-605822a7f84d"><br>
 
-- Open the Terminal window in the CML session and run the following commands to replace the CUDA path with the installed version in the custom docker image.
+- Open the Terminal window in the CML session and run the following commands to replace the preconfigured CUDA path with the installed CUDA version in the custom docker image.
   
 ```
 $ rm /usr/local/cuda
