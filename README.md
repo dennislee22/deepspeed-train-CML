@@ -50,9 +50,9 @@ VRAM (training/fine-tuning) =<br>
 - Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
 | Model     | Technique           | Total Node/Pod | Duration    | epoch  |Inference Result    | Memory (each Pod)  |
-| :---      |     :---:           |  :---:         |  ---:       |  :---: | :---:             |   :---:            |
-| t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   |Good                |   3 GB             |
-| t5-large  | w/o deepspeed       |     1          | ~           |    3   | Good                |   15 GB            |
+| :---      |     :---:           |  :---:         |  ---:       |  :---: | :---:              |   :---:            |
+| t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   | Good                |   3 GB             |
+| t5-large  | w/o deepspeed       |     1          | ~7465 secs  |    3   | Good                |   15 GB            |
 | t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs   |    5   | Good                |   5 GB             |
 | t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs |    3   | Good                |   13 GB            |
 | t5-large  | deepspeed ZeRO-1    |     2          |             |    3   | Good                |   15 GB            |
@@ -190,6 +190,7 @@ git-lfs clone
 - The single node/pod consumes the GPU memory consistently throughout the training process at ~15GB:
 <img width="800" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/c7723691-eee7-4b4f-a245-bf151c87a148"><br>
 
+Time taken by single node/pod to complete the training on `t5-large` model:
 ```
 {'train_runtime': 7465.4684, 'train_samples_per_second': 22.646, 'train_steps_per_second': 0.708, 'train_loss': 0.07108728009735235, 'epoch': 3.0}
 ```
