@@ -128,7 +128,7 @@ $ ln -s /usr/local/cuda-12.2 /usr/local/cuda
 $ ls -l /usr/local/cuda
 lrwxrwxrwx. 1 cdsw cdsw 20 Jan  4 05:38 /usr/local/cuda -> /usr/local/cuda-12.2
 ```
-- Install the Python packages.
+- Install the necessary Python packages.
 
 ```
 pip install -r requirements.txt
@@ -152,10 +152,11 @@ pip install -r requirements.txt
 #### <a name="toc_6"></a>3.4 Prepare Dataset & Model
 
 - In the CML session, run the [prep_dataset.ipynb](prep_dataset.ipynb) to prepare/tokenize the wikiSQL dataset prior to fine-tuning the model.
-- In the CML session, you may opt to clone the LFS model in advance.
+- In the CML session, you may opt to clone/download the LFS model in advance.
 
 ```
-git-lfs clone
+git-lfs clone https://huggingface.co/t5-large
+git-lfs clone https://huggingface.co/t5-small
 ```
 
 ### <a name="toc_7"></a>4. Single Node/Pod without ZeRO
