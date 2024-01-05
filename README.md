@@ -34,7 +34,7 @@
 VRAM (training/fine-tuning) = Model Parameters + Optimizer + Gradient + Activation 
 ```
 
-- For instance, training a model of 1 billon parameters with FP32 and `batch size 1` would require approximately ~22GB of VRAM. Adam is a magic optimizer but it requires a significant amount of GPU memory.
+- For instance, training a model of 1 billon parameters with FP32 and `batch size 1` would require approximately ~22GB of VRAM, partly due to optimizer. Adam is a magic optimizer but it requires a significant amount of GPU memory.
 
 VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
