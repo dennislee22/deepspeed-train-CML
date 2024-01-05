@@ -34,7 +34,7 @@
 VRAM (training/fine-tuning) = Model Parameters + Optimizer + Gradient + Activation 
 ```
 
-- For instance, training a model of 1 billon parameters with FP32 would require approximately ~22GB of VRAM.
+- For instance, training a model of 1 billon parameters with FP32 and `batch size 1` would require approximately ~GB of VRAM.
 
 VRAM (training/fine-tuning) =<br>
 <sup>(4bytes * param) + ((4 bytes/param + 4 bytes/param momentum + 4 bytes/param variance) * param) + (4bytes * param) + </sup><img width="300" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/4c647806-3634-437b-aba4-d7581437aa59">
@@ -49,14 +49,14 @@ VRAM (training/fine-tuning) =<br>
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
 - Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
-| Model     | Technique           | Total Node/Pod | Duration | Inference Result    | Memory (each Pod)  |
-| :---      |     :---:           |  :---:         |  ---:   |   :---:             |   :---:            |
-| t5-small  | w/o deepspeed       |     1          | ~742 secs | Good                |   3 GB             |
-| t5-large  | w/o deepspeed       |     1          | ~ | Good                |   15 GB            |
-| t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs | Good                |   5 GB             |
-| t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs | Good                |   13 GB            |
-| t5-large  | deepspeed ZeRO-1    |     2          |          | Good                |   15 GB            |
-| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs | Good                |   9 GB             |
+| Model     | Technique           | Total Node/Pod | Duration    | epoch  |Inference Result    | Memory (each Pod)  |
+| :---      |     :---:           |  :---:         |  ---:       |  :---: | :---:             |   :---:            |
+| t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   |Good                |   3 GB             |
+| t5-large  | w/o deepspeed       |     1          | ~           |    3   | Good                |   15 GB            |
+| t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs   |    5   | Good                |   5 GB             |
+| t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs |    3   | Good                |   13 GB            |
+| t5-large  | deepspeed ZeRO-1    |     2          |             |    3   | Good                |   15 GB            |
+| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs |    3   | Good                |   9 GB             |
 
 #### Summary:
 - deepspeed `ZeRO-1` with 3 nodes/pods manage to reduce the VRAM consumption when training `t5-large` model, but at the expense of slower training speed compared to single node/pod training without deepspeed.
