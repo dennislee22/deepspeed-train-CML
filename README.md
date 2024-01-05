@@ -49,7 +49,7 @@ VRAM (training/fine-tuning) =<br>
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
 - Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
-| Model     | Technique           | Total Node/Pod | Duration    | epoch  |Inference Result    | VRAM Usage (each Pod)  |
+| Model     | Technique           | Total Node/Pod | Duration    | epoch  |Inference     | VRAM Utilization (each Pod)  |
 | :---      |     :---:           |  :---:         |  ---:       |  :---: | :---:              |   :---:            |
 | t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   | Good                |   3 GB             |
 | t5-large  | w/o deepspeed       |     1          | ~7465 secs  |    3   | Good                |   15 GB            |
