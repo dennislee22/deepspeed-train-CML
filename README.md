@@ -27,7 +27,7 @@
 
 ### <a name="toc_0"></a>1. Objective
 
-- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. First, let's understand the actual GPU memory requirements for fine-tuning a model. 
+- When fine-tuning/training a LLM, insufficient VRAM is a major constraint. First, let's examine the actual GPU memory requirements for fine-tuning a model. 
 - In general, the major components that will be loaded into the VRAM during LLM training process are as follows.
 
 ```
