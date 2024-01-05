@@ -219,8 +219,8 @@ Inference took 1.03 seconds
 
 ### <a name="toc_11"></a>5. deepspeed 3 Nodes/Pods with ZeRO-1
 
-- Run [deepspeed-train.ipynb](deepspeed-train.ipynb) script to fine-tune the model using deepspeed technique. The first cell is designed to launch the necessary CML worker pods. The CML worker pods use the same image as the current CML session which has the necessary Nvidia software packages, pdsh/openMPI and openSSH installed. In this example, deepspeed uses pdsh with SSH protocol to run the training script in the remote worker pods.
-
+- Run [deepspeed-train.ipynb](deepspeed-train.ipynb) script to fine-tune the model using deepspeed technique. The first cell (as shown below) is designed to launch the necessary CML worker pods, obtain the IP address and pipe the details into the hostfile. The CML worker pods use the same image as the current CML session which has the necessary Nvidia software packages, pdsh/openMPI and openSSH installed. In this example, deepspeed uses pdsh with SSH protocol to run the training script in the remote worker pods.
+  
 ```
 from cml.workers_v1 import launch_workers
 import subprocess, socket, os, sys
@@ -277,7 +277,7 @@ Content of hostfile:
 10.254.19.152 slots=1
 ```
 
-- Run the following cell to execute deepspeed training script.
+- Run the following cell to execute the deepspeed training script.
 ```
 !export PDSH_SSH_ARGS_APPEND='';deepspeed --hostfile /home/cdsw/hostfile.txt \
 --launcher pdsh \
