@@ -145,7 +145,7 @@ pip install -r requirements.txt
 
 #### <a name="toc_5"></a>3.3 Create Tensorboard in CML Application
 
-- Tensorboard is deployed to monitor the training/validation loss. The training logs are serialized and reported to Tensorboard.
+- Tensorboard is deployed to monitor the training/validation loss. The training logs are serialized and reported to Tensorboard as defined in the training script.
 - Create Tensorboard in the CML application
 <img width="476" alt="image" src="https://github.com/dennislee22/deepspeed-train-CML/assets/35444414/f7a42bef-9c1e-4910-a68b-b9b9961ba831">
 
