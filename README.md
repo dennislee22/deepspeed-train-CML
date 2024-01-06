@@ -165,7 +165,7 @@ git-lfs clone https://huggingface.co/t5-small
 
 ### <a name="toc_7"></a>4. Single Node/Pod without ZeRO
 
-- Train the cloned `t5-small` model with the tokenized dataset using [textsql_train.py](textsql_train.py) script. The default value of other parameters can be changed/added in the argument list if necessary. Please explore the script for more information.
+- Train the cloned `t5-small` model with the tokenized dataset using [textsql_train.py](textsql_train.py) script. The default value of other parameters can be changed/added in the argument list if necessary. Explore the script for more information.
 ```
 !python textsql_train.py \
 --model_id 't5-small' \
