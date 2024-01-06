@@ -156,7 +156,7 @@ pip install -r requirements.txt
 #### <a name="toc_6"></a>3.4 Prepare Dataset & Model
 
 - In the CML session, run the [prep_dataset.ipynb](prep_dataset.ipynb) to prepare/tokenize the wikiSQL dataset prior to fine-tuning the model.
-- In the CML session, you may opt to clone/download the LFS model in advance.
+- You may also opt to clone/download the LFS model in advance.
 
 ```
 git-lfs clone https://huggingface.co/t5-large
