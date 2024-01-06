@@ -202,7 +202,7 @@ Time taken by single node/pod to complete the training on `t5-large` model:
 
 #### <a name="toc_10"></a>4.2 Inference
 
-- Run [run_inference.ipynb](run_inference.ipynb) for model inference and check the results.
+- Run [run_inference.ipynb](run_inference.ipynb) for model inference and verify the results.
 ```
 Test Instruction: If you are a pilot officer in the commonwealth then what will you called as in the US air force?
 Model Prediction: SELECT US air force FROM table WHERE Pilot Officer = commonwealth
@@ -406,7 +406,7 @@ depth 6:
 
 #### <a name="toc_14"></a>5.3 Inference
 
-- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and check the results.
+- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and verify the results.
 ```
 Test Instruction: How many different nationalities do the players of New Jersey Devils come from?
 Model Prediction: SELECT COUNT Nationalities FROM FROM table WHERE Players = New Jersey Devils
@@ -466,7 +466,7 @@ Inference took 1.02 seconds
 
 #### <a name="toc_19"></a>7.2 Inference
 
-- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and check the results.
+- Execute [run_inference.ipynb](run_inference.ipynb) to load the fine-tuned model for inference and verify the results.
 ```
 Test Instruction: What college did Calvin McCarty play at?
 Model Prediction: SELECT College FROM table WHERE College = Calvin McCarty
