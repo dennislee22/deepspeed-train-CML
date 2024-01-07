@@ -49,16 +49,16 @@ VRAM (training/fine-tuning) =<br>
 - As `t5-large` model has [issue](https://discuss.huggingface.co/t/t5-variants-return-training-loss-0-and-validation-loss-nan-while-fine-tuning/30839) with FP16 during training, FP32 is configured for the experiments. 
 - Table below summarizes the benchmark outcome as the result of running the experiments. Each running pod is attached to 1 unit of Nvidia A100-PCIE-40GB device.
 
-| Model     | Technique           | Total Node/Pod | Duration    | epoch  |Inference     | VRAM (each Pod)  |
-| :---      |     :---:           |  :---:         |  ---:       |  :---: | :---:              |   :---:            |
-| t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   | Good                |   3 GB             |
-| t5-large  | w/o deepspeed       |     1          | ~7465 secs  |    3   | Good                |   15 GB            |
-| t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs   |    5   | Good                |   5 GB             |
-| t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs |    3   | Good                |   13 GB            |
-| t5-large  | deepspeed ZeRO-1    |     2          |      -      |    3   | Good                |   15 GB            |
-| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs |    3   | Good                |   9 GB             |
-| t5-3b     | w/o deepspeed       |     1          |      -      |    3   | -                   |   OOM              |
-| t5-3b     | deepspeed ZeRO-3 Offload  |     3    |      N/A    |    3   | N/A                 |   21 GB            |
+| Model     | Technique           | Total Node/Pod | Duration    | epoch  | VRAM (each Pod)   |
+| :---      |     :---:           |  :---:         |  ---:       |  :---: |    :---:          |
+| t5-small  | w/o deepspeed       |     1          | ~742 secs   |    5   |  3 GB             |
+| t5-large  | w/o deepspeed       |     1          | ~7465 secs  |    3   |  15 GB            |
+| t5-small  | deepspeed ZeRO-1    |     3          | ~922 secs   |    5   | 5 GB              |
+| t5-large  | deepspeed ZeRO-1    |     3          | ~10530 secs |    3   |  13 GB            |
+| t5-large  | deepspeed ZeRO-1    |     2          |      -      |    3   | 15 GB             |
+| t5-large  | deepspeed ZeRO-3 Offload  |     3    | ~11044 secs |    3   |  9 GB             |
+| t5-3b     | w/o deepspeed       |     1          |      -      |    3   |  OOM              |
+| t5-3b     | deepspeed ZeRO-3 Offload  |     3    |      N/A    |    3   | 21 GB             |
 
 <sub>OOM = Out-of-Memory</sub>
 
